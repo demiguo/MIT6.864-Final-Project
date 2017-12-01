@@ -18,4 +18,6 @@ class Config:
         parser.add_argument('-seed', '--seed', type=int, help="Torch Random Seed", required=False, default=1)
         # include vector file name
         # include questions file name
+        # include max question length
+        # include final_dim
         self.args = vars(parser.parse_args())

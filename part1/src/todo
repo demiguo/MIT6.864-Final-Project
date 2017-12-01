@@ -1,3 +1,23 @@
-1.basic framework + train
-2.add evaluation + complete 
+PART1
+
+CNN
+1.basic framework + train (tonight)
+- dataset + utils
+- model
+
+2.add evaluation, checkpoints, complete 
 3.debug: running
+
+LSTM
+1.add model + padding
+2.debug: running
+
+ALL
+1.get OK results
+
+- distributed system
+- 6.858 computer security 
+- 6.437 inference (20 hours)
+- 15.401 intro to finance 
+- 6.438 inference (algorithms)
+
