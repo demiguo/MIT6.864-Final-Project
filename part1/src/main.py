@@ -29,7 +29,7 @@ def train(config, model, optimizer, data_loader, i2q):
 		assert similar_q.size() == (batch_size, num_similar_q)
 		assert candidate_q.size() == (batch_size, num_candidate_q)
 		assert label.size() == (batch_size, num_candidate_q)
-
+		
 
 		""" Retrieve Question Text """
 

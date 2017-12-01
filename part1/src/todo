@@ -4,9 +4,12 @@ CNN
 1.basic framework + train (tonight)
 - dataset + utils
 - model
+- config
 
 2.add evaluation, checkpoints, complete 
 3.debug: running
+
+4.consult with TF to get reasonable CNN model + pooling method
 
 LSTM
 1.add model + padding
