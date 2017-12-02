@@ -1,0 +1,6 @@
+12/02/2017 05:44:09 log to ../log/tmp.txt
+12/02/2017 05:44:09 => Finish Loading Configuration
+12/02/2017 05:44:11 => Finish Word Processing
+12/02/2017 05:47:25 log to ../log/tmp.txt
+12/02/2017 05:47:25 => Finish Loading Configuration
+12/02/2017 05:47:26 => Finish Word Processing

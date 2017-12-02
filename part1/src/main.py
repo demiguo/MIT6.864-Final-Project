@@ -10,7 +10,8 @@ import torch.utils.data
 import datetime
 from tqdm import tqdm
 
-from config import config
+import utils
+from config import Config
 from model import myCNN, myLSTM
 
 """ Train: return model, optimizer """
@@ -109,19 +110,26 @@ def evaluate(model, data_loader):
 if __name__ == "__main__":
 	config = Config()
 	config.get_config_from_user()
+	config.log.info("=> Finish Loading Configuration")
+
 
 	# word processing (w2i, i2w, i2v)
-	w2i, iw2, i2v, vocab_size = utils.word_processing(config)
+	w2i, i2v, vocab_size = utils.word_processing(config)
 	config.args.vocab_size = vocab_size 
+	config.log.info("=> Finish Word Processing")
 
 	# get questions (question dictionary: id -> python array pair (title, body))
-	i2q = utils.get_questions(config)
+	i2q = utils.get_questions(config, w2i)
+	config.log.info("=> Finish Retrieving Questions")
 
 	# create dataset
-	train_data = QRDataset(config.args.train_file, w2i, vocab_size)
-	test_data = QRDataset(config.args.test_file, w2i, vocab_size)
+	train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size)
+	config.log.info("=> Building Dataset: Finish Train")
+	test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size)
+	config.log.info("=> Building Dataset: Finish Test")
 	train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
 	test_loader = torhc.utils.data.DataLoader(test_data, batch_size=config.args.batch_size, **config.kwargs)
+	config.log.info("=> Building Dataset: Finish All")
 
 	if config.model_type == "CNN":
 		model = myCNN(config)

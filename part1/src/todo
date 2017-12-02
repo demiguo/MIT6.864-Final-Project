@@ -2,9 +2,6 @@ PART1
 
 CNN
 1.basic framework + train (tonight)
-- dataset + utils
-- model
-- config
 
 2.add evaluation, checkpoints, complete 
 3.debug: running
