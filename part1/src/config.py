@@ -31,15 +31,19 @@ class Config:
         parser.add_argument("-max_title_len", "--max_title_len", help="Max Question Title Length", required=False, default=100)
 
         parser.add_argument("-embedding_dim", "--embedding_dim", help="Embedding Dimension", required=False, default=200)
-        parser.add_argument("-hidden_dim", "--hidden_dim", help="Hidden Dimension", required=False, default=150)
-        parser.add_argument("-final_dim", "--final_dim", help="Final Dimension", required=False, default=100)
-       
+        
+        parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
+       	
         self.args = parser.parse_args()
         self.kwargs = {}
         np.random.seed(self.args.seed)
         random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
-
+        if config.args.model_type == "CNN":
+        	config.args.final_dim = 667
+        else:
+        	config.args.final_dim = 240
+        	
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         self.fh = logging.FileHandler(self.args.log_file)
