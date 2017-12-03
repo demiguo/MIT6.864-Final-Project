@@ -15,17 +15,16 @@ class myCNN(torch.nn.Module):
     def __init__(self, config):
         super(myCNN, self).__init__()
         self.config = config
-        self.vocab_size = config.vocab_size
-        self.embedding_dim = config.embedding_dim
+        self.vocab_size = config.args.vocab_size
+        self.embedding_dim = config.args.embedding_dim
 
         # CNN hyperparameters
-        self.hidden_dim = config.hidden_dim
-        self.final_dim = config.final_dim
+        self.final_dim = config.args.final_dim
 
         self.word_embeds = nn.Embedding(self.vocab_size, self.embedding_dim)
         self.cnn1 = nn.Conv1d(self.embedding_dim, self.final_dim, 3, 1)
 
-        self.init_weight(config.pretrained_wordvec)
+        self.init_weight(config.args.pretrained_wordvec)
 
     def init_weight(self, pretrained_embedding_file):
         # update embeddings using pretrained embedding file
@@ -45,7 +44,7 @@ class myCNN(torch.nn.Module):
 
         emb = self.word_embeds(text)
         assert emb.size() == (self.batch_size, self.len, self.embedding_dim), "1:emb.size()=%s" % str(emb.size())
-        emb = torch.transpose(emb, (1, 2))
+        emb = torch.transpose(emb, 1, 2)
         assert emb.size() == (self.batch_size, self.embedding_dim, self.len), "2:emb.size()=%s" % str(emb.size())
 
         x = self.cnn1(emb)
@@ -56,10 +55,10 @@ class myCNN(torch.nn.Module):
         assert x.size() == (self.batch_size, self.final_dim), "2:x.size()=%s" % str(x.size())
 
         text_len = text_len.view(self.batch_size, 1)
-        text_len = text_len.repeat(1, self.final_dim)
+        text_len = text_len.expand(self.batch_size, self.final_dim)
         x = x / text_len.float()
         assert x.size() == (self.batch_size, self.final_dim), "3:x.size()=%s" % str(x.size())
-        
+
         return x
 
 class myLSTM(torch.nn.Module):

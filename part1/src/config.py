@@ -27,23 +27,28 @@ class Config:
         parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../data/dev.txt")
         parser.add_argument("-log_file", "--log_file", help="Log File", required=False, default="../log/tmp.txt")
 
-        parser.add_argument("-max_body_len", "--max_body_len", help="Max Question Body Length", required=False, default=20)
-        parser.add_argument("-max_title_len", "--max_title_len", help="Max Question Title Length", required=False, default=100)
+        parser.add_argument("-max_body_len", "--max_body_len", type=int,help="Max Question Body Length", required=False, default=20)
+        parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=100)
 
-        parser.add_argument("-embedding_dim", "--embedding_dim", help="Embedding Dimension", required=False, default=200)
+        parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=40)
+        parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=10)
+
+        parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         
+        parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	
+       	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
         self.args = parser.parse_args()
         self.kwargs = {}
         np.random.seed(self.args.seed)
         random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
-        if config.args.model_type == "CNN":
-        	config.args.final_dim = 667
+        if self.args.model_type == "CNN":
+        	self.args.final_dim = 667
         else:
-        	config.args.final_dim = 240
-        	
+        	self.args.final_dim = 240
+
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         self.fh = logging.FileHandler(self.args.log_file)
