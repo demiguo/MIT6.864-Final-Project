@@ -23,10 +23,7 @@ class myCNN(torch.nn.Module):
         self.final_dim = config.final_dim
 
         self.word_embeds = nn.Embedding(self.vocab_size, self.embedding_dim)
-        self.cnn1 = nn.Conv1d(self.embedding_dim, self.hidden_dim, 3, 1)
-        self.pool1 = nn.MaxPool1d(2)
-        self.cnn2 = nn.Conv1d(self.hidden_dim, self.final_dim, 3, 1)
-        self.pool2 = nn.MaxPool1d(2)
+        self.cnn1 = nn.Conv1d(self.embedding_dim, self.final_dim, 3, 1)
 
         self.init_weight(config.pretrained_wordvec)
 
@@ -43,25 +40,27 @@ class myCNN(torch.nn.Module):
                 params.append(param)
         return params
 
-    def forward(self, text):
+    def forward(self, text, text_len):
         self.batch_size, self.len = text.size()
+
         emb = self.word_embeds(text)
-        assert emb.size() == (self.batch_size, self.len, self.embedding_dim)
+        assert emb.size() == (self.batch_size, self.len, self.embedding_dim), "1:emb.size()=%s" % str(emb.size())
         emb = torch.transpose(emb, (1, 2))
-        assert emb.size() == (self.batch_size, self.embedding_dim, self.len)
+        assert emb.size() == (self.batch_size, self.embedding_dim, self.len), "2:emb.size()=%s" % str(emb.size())
 
-        x1 = self.cnn1(emb)
-        x1 = self.pool1(x1)
-        x1 = torch.nn.ReLU()(x1)
+        x = self.cnn1(emb)
+        x = torch.nn.Tanh()(x)
 
-        x2 = self.cnn2(x1)
-        x2 = self.pool2(x2)
-        x2 = torch.nn.ReLU()(x2)
+        assert x.size(0) == self.batch_size and x.size(1) == self.final_dim, "1:x.size()=%s" % str(x.size())
+        x = torch.sum(x, dim=2)
+        assert x.size() == (self.batch_size, self.final_dim), "2:x.size()=%s" % str(x.size())
 
-        x2 = torch.max(x2, dim=2)[0]
-        assert x2.size() == (self.batch_size, self.final_dim)
-
-        return x2
+        text_len = text_len.view(self.batch_size, 1)
+        text_len = text_len.repeat(1, self.final_dim)
+        x = x / text_len.float()
+        assert x.size() == (self.batch_size, self.final_dim), "3:x.size()=%s" % str(x.size())
+        
+        return x
 
 class myLSTM(torch.nn.Module):
     def __init__(self, config):

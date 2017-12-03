@@ -118,7 +118,7 @@ def train(config, model, optimizer, data_loader, i2q):
 		""" Calculate Loss """
 		optimizer.zero()
 		# TODO(demi): make it batch operations
-		max_margin_loss = autograd.Variable(torch.zeros((batch_size, num_candidate_q)))
+		max_margin_loss = autograd.Variable(torch.zeros((batch_size, num_candidate_q+1)))
 		for i in tqdm(range(batch_size), desc="BatchMaxMarginCalculation"):
 			qi = q_emb[i].view(cnofig.args.final_dim)
 			pp_ind = random.randint(0, num_similar_q)
@@ -130,6 +130,7 @@ def train(config, model, optimizer, data_loader, i2q):
 				delta = config.args.delta_constant if label[i][j] == 0 else 0
 				margin = s1 - s2 + delta
 				max_margin_loss[i][j] += margin
+			max_margin_loss[i][num_candidate_q] += 0 # positive example loss
 		max_margin_loss = torch.max(max_margin_loss, dim=1)[0].view(batch_size)
 		loss = torch.mean(max_margin_loss)
 
