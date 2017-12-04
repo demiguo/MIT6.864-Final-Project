@@ -25,7 +25,7 @@ class Config:
         parser.add_argument("-train_file", "--train_file", help="Train File", required=False, default="../data/train_random.txt")
         parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../data/test.txt")
         parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../data/dev.txt")
-        parser.add_argument("-log_file", "--log_file", help="Log File", required=False, default="../log/tmp.txt")
+        parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../log")
         parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../models")
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
@@ -52,7 +52,8 @@ class Config:
         else:
         	self.args.final_dim = 240
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
-
+        self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
+        
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
         self.fh = logging.FileHandler(self.args.log_file)
