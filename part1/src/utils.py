@@ -74,6 +74,7 @@ def get_questions(config, w2i):
 	if config.args.mode == "debug":
 		lines = lines[:15]
 
+	config.log.info("# of questions: %d" % len(lines))
 	for i, line in tqdm(enumerate(lines), desc="Retrieving Questions"):
 		qid, title, body = line.split("\t")
 
@@ -111,7 +112,7 @@ def get_questions(config, w2i):
 
 """ qid, similar_q, candidate_q, label """
 class QRDataset(torch.utils.data.Dataset):
-	def __init__(self, config, data_file, w2i, vocab_size, is_train=True, prune_positive_sample=10, K_neg=20):
+	def __init__(self, config, data_file, w2i, vocab_size, i2q, is_train=True, prune_positive_sample=10, K_neg=20):
 		f = open(data_file)
 		lines = f.readlines()
 		f.close()
@@ -149,13 +150,24 @@ class QRDataset(torch.utils.data.Dataset):
 				if len(s) == 1 and s[0] == "":
 					continue
 
-
+			q = int(q)
 			s = [int(o) for o in s]
 			c = [int(o) for o in c]
+
 			if config.args.mode == "debug":
 				s = [o % 10 for o in s]
 				c = [o % 10 for o in c]
 				q = int(q) % 10
+
+			bad = not q in i2q
+			for o in s:
+				bad |= not o in i2q
+			for o in c:
+				bad |= not o in i2q
+			if bad:
+				# some questions not found
+				config.log.warning("case line %d not found" % i)
+				continue
 
 			self.qid[cur_index] = int(q)
 			s_set = Set([])

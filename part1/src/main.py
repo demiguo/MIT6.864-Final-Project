@@ -323,11 +323,11 @@ if __name__ == "__main__":
 	config.log.info("=> Finish Retrieving Questions")
 
 	# create dataset
-	train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, is_train=True)
+	train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True)
 	config.log.info("=> Building Dataset: Finish Train")
-	dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, is_train=False)
+	dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, i2q, is_train=False)
 	config.log.info("=> Building Dataset: Finish Dev")
-	test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, is_train=False)
+	test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, i2q, is_train=False)
 	config.log.info("=> Building Dataset: Finish Test")
 	train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
 	dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
