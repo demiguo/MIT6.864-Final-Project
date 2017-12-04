@@ -26,6 +26,9 @@ class Config:
         parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../data/test.txt")
         parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../data/dev.txt")
         parser.add_argument("-log_file", "--log_file", help="Log File", required=False, default="../log/tmp.txt")
+        parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../models")
+        now = datetime.datetime.now()
+        parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
 
         parser.add_argument("-max_body_len", "--max_body_len", type=int,help="Max Question Body Length", required=False, default=20)
         parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=100)
@@ -48,6 +51,7 @@ class Config:
         	self.args.final_dim = 667
         else:
         	self.args.final_dim = 240
+        self.args.model_file = "%s/12/04-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
 
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)

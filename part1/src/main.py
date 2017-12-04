@@ -170,8 +170,142 @@ def train(config, model, optimizer, data_loader, i2q):
 """ Evaluate: return model """
 def evaluate(model, optimizer, data_loader):
 	model.eval()
-	print "not implemented"
-	return 0, 0, 0, 0
+	# TODO(demi): currently, this only works for CNN model. In the future, make it compatible for LSTM model.
+	model.train()
+
+	total = 0
+
+	MAP = 0
+	MRR = 0
+	P1 = 0
+	P5 = 0
+	for batch_idx, (qid, similar_q, candidate_q, label, similar_num, candidate_num) in tqdm(enumerate(data_loader), desc="Evaluating"):
+		# qid: batch_size (tensor)
+		# similar_q: batch_size * num_similar_q (tensor)
+		# candidate_q: batch_size * 20 (tensor)
+		# label: batch_size * 20 (tensor)
+		num_candidate_q = 20
+
+		batch_size = qid.size(0)
+		total += batch_size
+		assert qid.size() == (batch_size,)
+
+
+		""" Retrieve Question Text """
+
+		# get question title and body
+		q_title = torch.zeros((batch_size, config.args.max_title_len)).long()
+		q_body = torch.zeros((batch_size, config.args.max_body_len)).long()
+		q_title_len = torch.zeros((batch_size)).long()
+		q_body_len = torch.zeros((batch_size)).long()
+		for i in range(batch_size):
+			#print "qid=", qid[i]
+			#print "i2q[qid[i]]=", i2q[qid[i]]
+			#embed()
+			t, b, t_len, b_len = i2q[qid[i]]
+			q_title[i] = torch.LongTensor(t)
+			q_body[i] = torch.LongTensor(b)
+			q_title_len[i] = t_len
+			q_body_len[i] = b_len
+			#embed()
+		q_title = autograd.Variable(q_title)
+		q_body = autograd.Variable(q_body)
+		q_title_len = autograd.Variable(q_title_len)
+		q_body_len = autograd.Variable(q_body_len)
+
+
+		# get candidate question title and body
+		candidate_title = torch.zeros((batch_size, num_candidate_q, config.args.max_title_len)).long()
+		candidate_body = torch.zeros((batch_size, num_candidate_q, config.args.max_body_len)).long()
+		candidate_title_len = torch.zeros((batch_size, num_candidate_q)).long()
+		candidate_body_len = torch.zeros((batch_size, num_candidate_q)).long()
+		for i in range(batch_size):
+			l = candidate_num[i]
+			assert l == num_candidate_q
+			candidate_ids = list(range(l))
+			for j in range(num_candidate_q):
+				idx = candidate_ids[j]
+				t, b, t_len, b_len = i2q[candidate_q[i][idx]]
+				candidate_title[i][j] = torch.LongTensor(t)
+				candidate_body[i][j] = torch.LongTensor(b)
+				candidate_title_len[i][j] = t_len
+				candidate_body_len[i][j] = b_len
+		candidate_title = autograd.Variable(candidate_title)
+		candidate_body = autograd.Variable(candidate_body)
+		candidate_title_len = autograd.Variable(candidate_title_len)
+		candidate_body_len = autograd.Variable(candidate_body_len)
+
+		""" Retrieve Question Embeddings """
+
+		q_emb = 0.5 * (model(q_title, q_title_len)+ model(q_body, q_body_len))
+		assert q_emb.size() == (batch_size, config.args.final_dim)
+
+		candidate_title = candidate_title.contiguous().view(batch_size * num_candidate_q, config.args.max_title_len)
+		candidate_body = candidate_body.contiguous().view(batch_size * num_candidate_q, config.args.max_body_len)
+		candidate_title_len = candidate_title_len.contiguous().view(batch_size * num_candidate_q)
+		candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
+		candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
+		candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
+
+
+		""" Compute Metrics """
+		d = config.args.final_dim
+		q_emb = q_emb.view(batch_size, 1, d)
+		q_expand_emb = q_emb.expand(batch_size, num_candidate_q, d)
+		assert q_expand_emb.size() == candidate_emb.size()
+
+		scores = nn.CosineSimilarity(dim=2, eps=1e-6)(q_expand_emb, candidate_emb)
+		assert scores.size() == (batch_size, num_candidate_q)
+		scores = scores.data.numpy()
+		assert scores.shape == (batch_size, num_candidate_q)
+
+		# TODO(demi): move these metrics calculation to other files
+		for batch_id in range(batch_size):
+			batch_scores = scores[batch_id]
+			batch_ranks = np.argsort(batch_scores)
+
+			# MAP
+			batch_MAP = 0
+			correct = 0
+			for i in range(num_candidate_q):
+				idx = batch_ranks[i]
+				assert label[batch_id][idx] == 0 or label[batch_id][idx] == 1
+				if label[batch_id][idx] == 1:
+					correct += 1
+				batch_MAP += 1.0 * correct / (i + 1)
+			batch_MAP /= num_candidate_q
+			MAP += batch_MAP
+
+			# MRR
+			first_correct = num_candidate_q + 1
+			for i in range(num_candidate_q):
+				idx = batch_ranks[i]
+				if label[batch_id][idx] == 1:
+					first_correct = i + 1
+					break
+			MRR += 1.0 / first_correct
+
+			# P@1
+			batch_P1 = 0
+			for i in range(1):
+				idx = batch_ranks[i]
+				if label[batch_id][idx] == 1:
+					batch_P1 += 1
+			batch_P1 /= 1.0
+			P1 += batch_P1
+
+			# P@5
+			batch_P5 = 0
+			for i in range(5):
+				idx = batch_ranks[i]
+				if label[batch_id][idx] == 1:
+					batch_P5 += 1
+			batch_P5 /= 5.0
+			P5 += batch_P5
+
+
+	return MAP / total, MRR / total, P1 / total, P5 / total
+
 
 if __name__ == "__main__":
 	config = Config()
@@ -191,10 +325,13 @@ if __name__ == "__main__":
 	# create dataset
 	train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, is_train=True)
 	config.log.info("=> Building Dataset: Finish Train")
+	dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, is_train=False)
+	config.log.info("=> Building Dataset: Finish Dev")
 	test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, is_train=False)
 	config.log.info("=> Building Dataset: Finish Test")
 	train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
-	test_loader = torch.utils.data.DataLoader(test_data, batch_size=config.args.batch_size, **config.kwargs)
+	dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+	test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
 	config.log.info("=> Building Dataset: Finish All")
 
 	if config.args.model_type == "CNN":
@@ -205,8 +342,22 @@ if __name__ == "__main__":
 	optimizer = optim.Adam(model.get_train_parameters(), lr=0.1)
 	for epoch in tqdm(range(config.args.epochs), desc="Running"):
 			model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
-			MAP, MRR, P1, P5 = evaluate(model, optimizer, test_loader)
-			print "EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss)
-			print "EPOCH[%d] TEST: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, MAP, MRR, P1, P5)
+			dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader)
+			test_MAP, test_MRR, test_P1, test_P5 = evaluate(model, optimizer, test_loader)
+			# TODO(demi): change this, so only evaluate test on best dev model
+			config.log.info("EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss))
+			config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
+			config.log.info("EPOCH[%d] TEST: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, test_MAP, test_MRR, test_P1, test_P5))
 
+			def save_checkpoint():
+				checkpoint = {"model":model.state_dict(), 
+							  "optimizer":optimizer.state_dict(),
+							  "dev_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (dev_MAP, dev_MRR, dev_P1, dev_P5),
+							  "test_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (test_MAP, test_MRR, test_P1, test_P5),
+							  "args":config.args}
+				checkpoint_file = config.args.model_file
+				config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))
+				torch.save(checkpoint, checkpoint_file)
+			
+			save_checkpoint()
 			# TODO(demi): save checkpoint
