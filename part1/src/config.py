@@ -51,7 +51,7 @@ class Config:
         	self.args.final_dim = 667
         else:
         	self.args.final_dim = 240
-        self.args.model_file = "%s/12/04-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
+        self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
 
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
