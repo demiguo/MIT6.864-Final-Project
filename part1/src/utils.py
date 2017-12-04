@@ -78,7 +78,7 @@ def get_questions(config, w2i):
 	for i, line in tqdm(enumerate(lines), desc="Retrieving Questions"):
 		qid, title, body = line.split("\t")
 
-		qid = int(qid) + 1 # make sure it's 0 indexed
+		qid = int(qid) 
 		if config.args.mode == "debug":
 			qid = i + 1
 
@@ -159,15 +159,25 @@ class QRDataset(torch.utils.data.Dataset):
 				c = [o % 10 for o in c]
 				q = int(q) % 10
 
-			bad = not q in i2q
+			if not q in i2q:
+				config.log.warning("case line %d not found q %d" % (i,q))
+			new_s = []
 			for o in s:
-				bad |= not o in i2q
+				if o in i2q:
+					new_s.append(o)
+				else:
+					config.log.warning("case line %d | s | %d not found" % (i, o))
+			new_c = []
 			for o in c:
-				bad |= not o in i2q
-			if bad:
-				# some questions not found
-				config.log.warning("case line %d not found" % i)
+				if o in i2q:
+					new_c.append(o)
+				else:
+					config.log.warning("case line %d | c | %d not found" % (i, o))
+			if len(new_s) == 0 or len(new_c) == 0:
+				config.log.warning("case line %d now has empty s or c\nq=%d\ns=%s\nc=%s\n" % (i,q,str(s),str(c)))
 				continue
+			s = new_s
+			c = new_c
 
 			self.qid[cur_index] = int(q)
 			s_set = Set([])
