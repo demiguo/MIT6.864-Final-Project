@@ -1,20 +1,24 @@
+
 PART1
+* set up GPU instance
 
-CNN
-1.basic framework + train (tonight)
+* CNN
+- check how many positive examples to use (do you prune them)
+- what are possible reasons that it doesn't work
 
-2.add evaluation, checkpoints, complete 
-3.debug: running
+0.finish LSTM code 
+1.check cosine similarity scores; check all intermediate scores
+2.set up GPU instances
+3.(did i sort them in ascending order)?
 
-4.consult with TF to get reasonable CNN model + pooling method
 
-LSTM
-1.add model + padding
-2.debug: running
+* LSTM
+- finish LSTM code
 
-ALL
-1.get OK results
 
+
+
+Classes:
 - distributed system
 - 6.858 computer security 
 - 6.437 inference (20 hours)

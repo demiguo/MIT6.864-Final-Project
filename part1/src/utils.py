@@ -179,6 +179,7 @@ class QRDataset(torch.utils.data.Dataset):
 			s = new_s
 			c = new_c
 
+			# sort s in terms of question length
 			self.qid[cur_index] = int(q)
 			s_set = Set([])
 			for j in range(len(s)):
@@ -194,6 +195,7 @@ class QRDataset(torch.utils.data.Dataset):
 				candidate_ids = range(len(c))
 				assert len(c) == NUM_CANDIDATE_Q, "len(c) [%d] != NUM_CANDIDATE_Q" % (len(c))
 
+			# TODO(demi): sort candidate_ids in terms of question length
 			for j in range(len(candidate_ids)):
 				idx = candidate_ids[j]
 				self.candidate_q[cur_index][j] = int(c[idx])
