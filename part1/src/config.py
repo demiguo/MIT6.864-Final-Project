@@ -42,6 +42,8 @@ class Config:
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	
        	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
+
+
         self.args = parser.parse_args()
         self.kwargs = {}
         np.random.seed(self.args.seed)

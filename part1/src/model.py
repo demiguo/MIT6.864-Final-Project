@@ -50,27 +50,97 @@ class myCNN(torch.nn.Module):
         x = self.cnn1(emb)
         x = torch.nn.Tanh()(x)
 
-        assert x.size(0) == self.batch_size and x.size(1) == self.final_dim, "1:x.size()=%s" % str(x.size())
         x = torch.sum(x, dim=2)
-        assert x.size() == (self.batch_size, self.final_dim), "2:x.size()=%s" % str(x.size())
 
         text_len = text_len.view(self.batch_size, 1)
         text_len = text_len.expand(self.batch_size, self.final_dim)
         x = x / text_len.float()
-        assert x.size() == (self.batch_size, self.final_dim), "3:x.size()=%s" % str(x.size())
 
         return x
 
 class myLSTM(torch.nn.Module):
     def __init__(self, config):
         super(myLSTM, self).__init__()
-        print "not implemented"
+        self.config = config
+        self.vocab_size = config.args.vocab_size
+        self.embedding_dim = config.args.embedding_dim
+        self.final_dim = config.args.final_dim
 
-    def get_train_parameters(self):
-        print "not implemented"
+        self.word_embeds = nn.Embedding(self.vocab_size, self.embedding_dim)
+        self.lstm = nn.LSTM(self.embedding_dim, self.final_dim // 2, num_layers=1, batch_first=True, bidirectional=True)
+
+        self.init_weight(config.args.pretrained_wordvec)
 
     def init_weight(self, pretrained_embedding_file):
-        print "not implemented"
+        # update embeddings using pretrained embedding file
+        word_vec = np.loadtxt(pretrained_embedding_file)
+        self.word_embeds.weight.data.copy_(torch.FloatTensor(word_vec))
+        self.word_embeds.weight.requires_grad = False
 
-    def forward(self, text):
-        print "not implemented"
+    def init_hidden(self, batch_size):
+        h = autograd.Variable(torch.randn(2, batch_size, self.final_dim // 2))
+        c = autograd.Variable(torch.randn(2, batch_size, self.final_dim // 2))
+        return (h, c)
+
+    def get_train_parameters(self):
+        params = []
+        for param in self.parameters():
+            if param.requires_grad == True:
+                params.append(param)
+        return params
+
+    """ Sort text data in nonincreasing order by length, and return new text, text_len """
+    def preprocess(self, text, text_len):
+        indices = np.argsort(-text_len.data.numpy())
+
+        #print "text_len = ", text_len
+        #print "indices=", indices
+        #print "text_len.data.numpy=",text_len.data.numpy()
+
+        new_text = np.zeros((self.batch_size, self.max_len), dtype=int)
+        new_text_len = np.zeros((self.batch_size), dtype=int)
+
+        for i in range(self.batch_size):
+            new_text[i] = text.data[indices[i]].numpy()
+            new_text_len[i] = text_len.data[indices[i]]
+
+        new_text = torch.autograd.Variable(torch.from_numpy(new_text))
+        new_text_len = torch.autograd.Variable(torch.from_numpy(new_text_len))
+
+        return new_text, new_text_len
+
+
+    def forward(self, text, text_len):
+        self.batch_size, self.max_len = text.size()
+        text, text_len = self.preprocess(text, text_len)
+        text_len_list = text_len.data.numpy().tolist()
+        #print "text_len_list=",text_len_list
+
+        # Model
+        emb = self.word_embeds(text)
+        assert emb.size() == (self.batch_size, self.max_len, self.embedding_dim)
+
+        pack_emb_input = torch.nn.utils.rnn.pack_padded_sequence(emb, text_len_list, batch_first=True)
+        self.hidden = self.init_hidden(self.batch_size)
+        lstm_out, self.hidden = self.lstm(pack_emb_input, self.hidden)
+
+        #print "lstm_out=", lstm_out
+        pad_lstm_out, lstm_lens = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True)
+        # NB(demi): in theory lstm_lens should be the same as text_len
+        
+        #print "self.batch_size=", self.batch_size
+        #print "self.max_len=", self.max_len
+        #print "self.final_dim=", self.final_dim
+        #print "pad_lstm_out.size=", pad_lstm_out.size()
+        # TODO(demi): do we want to add nonlinearity here?
+
+        # Average Pooling
+        outputs = torch.sum(pad_lstm_out, dim=1)
+        assert outputs.size() == (self.batch_size, self.final_dim)
+
+        text_len = text_len.view(self.batch_size, 1)
+        text_len = text_len.expand(self.batch_size, self.final_dim)
+        outputs = outputs / text_len.float()
+        
+        return outputs
+
