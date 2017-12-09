@@ -28,8 +28,10 @@ class myCNN(torch.nn.Module):
 
     def init_weight(self, pretrained_embedding_file):
         # update embeddings using pretrained embedding file
-        word_vec = np.loadtxt(pretrained_embedding_file)
-        self.word_embeds.weight.data.copy_(torch.FloatTensor(word_vec))
+        word_vec = torch.FloatTensor(np.loadtxt(pretrained_embedding_file))
+        if self.config.use_cuda:
+            word_vec = word_vec.cuda()
+        self.word_embeds.weight.data.copy_(word_vec)
         self.word_embeds.weight.requires_grad = False
 
     def get_train_parameters(self):
@@ -73,13 +75,17 @@ class myLSTM(torch.nn.Module):
 
     def init_weight(self, pretrained_embedding_file):
         # update embeddings using pretrained embedding file
-        word_vec = np.loadtxt(pretrained_embedding_file)
-        self.word_embeds.weight.data.copy_(torch.FloatTensor(word_vec))
+        word_vec = torch.FloatTensor(np.loadtxt(pretrained_embedding_file))
+        if self.config.use_cuda:
+            word_vec = word_vec.cuda()
+        self.word_embeds.weight.data.copy_(word_vec)
         self.word_embeds.weight.requires_grad = False
 
     def init_hidden(self, batch_size):
         h = autograd.Variable(torch.randn(2, batch_size, self.final_dim // 2))
         c = autograd.Variable(torch.randn(2, batch_size, self.final_dim // 2))
+        if self.config.use_cuda:
+            h, c = h.cuda(), c.cuda()
         return (h, c)
 
     def get_train_parameters(self):
@@ -107,6 +113,8 @@ class myLSTM(torch.nn.Module):
         new_text = torch.autograd.Variable(torch.from_numpy(new_text))
         new_text_len = torch.autograd.Variable(torch.from_numpy(new_text_len))
 
+        if self.config.use_cuda:
+            new_text, new_text_len = new_text.cuda(), new_text_len.cuda()
         return new_text, new_text_len
 
 

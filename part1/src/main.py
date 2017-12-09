@@ -56,6 +56,8 @@ def train(config, model, optimizer, data_loader, i2q):
         q_body = autograd.Variable(q_body)
         q_title_len = autograd.Variable(q_title_len)
         q_body_len = autograd.Variable(q_body_len)
+        if config.use_cuda:
+            q_title, q_title_len, q_body, q_body_len = q_title.cuda(), q_title_len.cuda(), q_body.cuda(), q_body_len.cuda()
 
         # get similar question title and body
         similar_title = torch.zeros((batch_size, num_similar_q, config.args.max_title_len)).long()
@@ -76,7 +78,9 @@ def train(config, model, optimizer, data_loader, i2q):
         similar_body = autograd.Variable(similar_body)
         similar_title_len = autograd.Variable(similar_title_len)
         similar_body_len = autograd.Variable(similar_body_len)
-
+        if config.use_cuda:
+            similar_title, similar_title_len, similar_body, similar_body_len =\
+                similar_title.cuda(), similar_title_len.cuda(), similar_body.cuda(), similar_body_len.cuda()
 
         # get candidate question title and body
         candidate_title = torch.zeros((batch_size, num_candidate_q, config.args.max_title_len)).long()
@@ -97,7 +101,9 @@ def train(config, model, optimizer, data_loader, i2q):
         candidate_body = autograd.Variable(candidate_body)
         candidate_title_len = autograd.Variable(candidate_title_len)
         candidate_body_len = autograd.Variable(candidate_body_len)
-
+        if config.use_cuda:
+            candidate_title, candidate_title_len, candidate_body, candidate_body_len =\
+                candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
         """ Retrieve Question Embeddings """
 
         q_emb = 0.5 * (model(q_title, q_title_len)+ model(q_body, q_body_len))
@@ -212,6 +218,8 @@ def evaluate(model, optimizer, data_loader):
         q_body = autograd.Variable(q_body)
         q_title_len = autograd.Variable(q_title_len)
         q_body_len = autograd.Variable(q_body_len)
+        if config.use_cuda:
+            q_title, q_title_len, q_body, q_body_len = q_title.cuda(), q_title_len.cuda(), q_body.cuda(), q_body_len.cuda()
 
 
         # get candidate question title and body
@@ -246,6 +254,9 @@ def evaluate(model, optimizer, data_loader):
         candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
         candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
         candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
+        if config.use_cuda:
+            candidate_title, candidate_title_len, candidate_body, candidate_body_len =\
+                candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
 
 
         """ Compute Metrics """
@@ -341,6 +352,9 @@ if __name__ == "__main__":
     else:
         model = myLSTM(config)
 
+    if config.use_cuda:
+        model = model.cuda()
+        
     optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
