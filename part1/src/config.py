@@ -46,7 +46,6 @@ class Config:
 
 
         self.args = parser.parse_args()
-        self.kwargs = {'num_workers': 4, 'pin_memory': True} if self.use_cuda else {}
 
         if torch.cuda.is_available() and self.args['cuda']:
             self.use_cuda = True
@@ -54,6 +53,7 @@ class Config:
             torch.cuda.set_device(self.args['default_device'])
         else:
             self.use_cuda = False
+        self.kwargs = {'num_workers': 4, 'pin_memory': True} if self.use_cuda else {}
 
         np.random.seed(self.args.seed)
         random.seed(self.args.seed)
