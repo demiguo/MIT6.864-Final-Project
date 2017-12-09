@@ -30,8 +30,8 @@ class Config:
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
 
-        parser.add_argument("-max_body_len", "--max_body_len", type=int,help="Max Question Body Length", required=False, default=20)
-        parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=100)
+        parser.add_argument("-max_body_len", "--max_body_len", type=int,help="Max Question Body Length", required=False, default=100)
+        parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=20)
 
         parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=40)
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=10)
