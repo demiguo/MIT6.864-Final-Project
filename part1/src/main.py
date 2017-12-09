@@ -348,13 +348,15 @@ if __name__ == "__main__":
     config.log.info("=> Building Dataset: Finish All")
 
     if config.args.model_type == "CNN":
+        config.log.info("=> Running CNN Model")
         model = myCNN(config)
     else:
+        config.log.info("=> Running LSTM Model")
         model = myLSTM(config)
 
     if config.use_cuda:
         model = model.cuda()
-        
+
     optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
