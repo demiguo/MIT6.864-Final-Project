@@ -117,12 +117,12 @@ class myLSTM(torch.nn.Module):
 
         if self.config.use_cuda:
             new_text, new_text_len = new_text.cuda(), new_text_len.cuda()
-        return new_text, new_text_len
+        return new_text, new_text_len, indices
 
 
     def forward(self, text, text_len):
         self.batch_size, self.max_len = text.size()
-        text, text_len = self.preprocess(text, text_len)
+        text, text_len, indices = self.preprocess(text, text_len)
         text_len_list = text_len.cpu().data.numpy().tolist()
         #print "text_len_list=",text_len_list
 
@@ -152,5 +152,14 @@ class myLSTM(torch.nn.Module):
         text_len = text_len.expand(self.batch_size, self.final_dim)
         outputs = outputs / text_len.float()
         
-        return outputs
+        # inverse back
+        inverse_outputs = autograd.Variable(torch.zeros((self.batch_size, self.final_dim)))
+        if self.config.use_cuda:
+            inverse_outputs = inverse_outputs.cuda()
+
+        for i in range(self.batch_size):
+            # i (new) -> indices[i] (old)
+            inverse_outputs[indices[i]] += outputs[i]
+
+        return inverse_outputs
 
