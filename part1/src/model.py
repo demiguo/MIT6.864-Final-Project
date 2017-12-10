@@ -97,6 +97,8 @@ class myLSTM(torch.nn.Module):
 
     """ Sort text data in nonincreasing order by length, and return new text, text_len """
     def preprocess(self, text, text_len):
+        text = text.cpu()
+        text_len = text_len.cpu()
         indices = np.argsort(-text_len.data.numpy())
 
         #print "text_len = ", text_len
@@ -115,19 +117,26 @@ class myLSTM(torch.nn.Module):
 
         if self.config.use_cuda:
             new_text, new_text_len = new_text.cuda(), new_text_len.cuda()
-        return new_text, new_text_len
+        return new_text, new_text_len, indices
 
 
     def forward(self, text, text_len):
         self.batch_size, self.max_len = text.size()
-        text, text_len = self.preprocess(text, text_len)
-        text_len_list = text_len.data.numpy().tolist()
+        #print("text_len (before)=", text_len)
+        #print("text(before)=", text)
+        text, text_len, indices = self.preprocess(text, text_len)
+        text_len_list = text_len.cpu().data.numpy().tolist()
+        #print("text (after)=", text)
+        #print("text_len(after)=", text_len)
+        #print("text_len_list(after)=", text_len_list)
         #print "text_len_list=",text_len_list
 
         # Model
         emb = self.word_embeds(text)
         assert emb.size() == (self.batch_size, self.max_len, self.embedding_dim)
 
+        #print("emb=", emb)
+        #print("text_len_list=", text_len_list)
         pack_emb_input = torch.nn.utils.rnn.pack_padded_sequence(emb, text_len_list, batch_first=True)
         self.hidden = self.init_hidden(self.batch_size)
         lstm_out, self.hidden = self.lstm(pack_emb_input, self.hidden)
@@ -150,5 +159,13 @@ class myLSTM(torch.nn.Module):
         text_len = text_len.expand(self.batch_size, self.final_dim)
         outputs = outputs / text_len.float()
         
-        return outputs
+        inverse_indices = [0] * self.batch_size
+        for i in range(self.batch_size):
+            inverse_indices[indices[i]] = i
+        inverse_indices = torch.LongTensor(inverse_indices)
+        if self.config.use_cuda:
+            inverse_indices = inverse_indices.cuda()
+
+        inverse_outputs = outputs[inverse_indices]
+        return inverse_outputs
 
