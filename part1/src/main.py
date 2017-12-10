@@ -267,7 +267,7 @@ def evaluate(model, optimizer, data_loader):
 
         scores = nn.CosineSimilarity(dim=2, eps=1e-6)(q_expand_emb, candidate_emb)
         assert scores.size() == (batch_size, num_candidate_q)
-        scores = scores.data.numpy()
+        scores = scores.cpu().data.numpy()
         assert scores.shape == (batch_size, num_candidate_q)
 
         # TODO(demi): move these metrics calculation to other files

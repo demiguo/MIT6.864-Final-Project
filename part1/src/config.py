@@ -42,15 +42,15 @@ class Config:
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	
        	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
-        parser.add_argument('-cuda', '--cuda', help="Use CUDA or not", required=False, default=False)
+        parser.add_argument('-cuda', '--cuda', type=bool, help="Use CUDA or not", required=False, default=False)
 
 
         self.args = parser.parse_args()
 
-        if torch.cuda.is_available() and self.args['cuda']:
+        if torch.cuda.is_available() and self.args.cuda:
             self.use_cuda = True
-            torch.cuda.manual_seed(self.args['seed'])
-            torch.cuda.set_device(self.args['default_device'])
+            torch.cuda.manual_seed(self.args.seed)
+            torch.cuda.set_device(0) # default device = 0
         else:
             self.use_cuda = False
         self.kwargs = {'num_workers': 4, 'pin_memory': True} if self.use_cuda else {}

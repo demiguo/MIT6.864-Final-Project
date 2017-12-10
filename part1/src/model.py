@@ -97,6 +97,8 @@ class myLSTM(torch.nn.Module):
 
     """ Sort text data in nonincreasing order by length, and return new text, text_len """
     def preprocess(self, text, text_len):
+        text = text.cpu()
+        text_len = text_len.cpu()
         indices = np.argsort(-text_len.data.numpy())
 
         #print "text_len = ", text_len
@@ -121,7 +123,7 @@ class myLSTM(torch.nn.Module):
     def forward(self, text, text_len):
         self.batch_size, self.max_len = text.size()
         text, text_len = self.preprocess(text, text_len)
-        text_len_list = text_len.data.numpy().tolist()
+        text_len_list = text_len.cpu().data.numpy().tolist()
         #print "text_len_list=",text_len_list
 
         # Model

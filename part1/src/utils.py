@@ -105,7 +105,7 @@ def get_questions(config, w2i):
 		assert len(title_ids) == config.args.max_title_len
 		assert len(body_ids) == config.args.max_body_len
 
-		i2q[qid] = (title_ids, body_ids, len(title), len(body))
+		i2q[qid] = (title_ids, body_ids, min(config.args.max_title_len, len(title)), min(config.args.max_body_len,len(body)))
 	f.close()
 	return i2q
 
