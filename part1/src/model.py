@@ -69,7 +69,7 @@ class myLSTM(torch.nn.Module):
         self.final_dim = config.args.final_dim
 
         self.word_embeds = nn.Embedding(self.vocab_size, self.embedding_dim)
-        self.lstm = nn.LSTM(self.embedding_dim, self.final_dim // 2, num_layers=1, batch_first=True, bidirectional=True)
+        self.lstm = nn.LSTM(self.embedding_dim, self.final_dim // 2, num_layers=1, batch_first=True, bidirectional=True, dropout=0.1)
 
         self.init_weight(config.args.pretrained_wordvec)
 
@@ -138,8 +138,8 @@ class myLSTM(torch.nn.Module):
         #print("emb=", emb)
         #print("text_len_list=", text_len_list)
         pack_emb_input = torch.nn.utils.rnn.pack_padded_sequence(emb, text_len_list, batch_first=True)
-        self.hidden = self.init_hidden(self.batch_size)
-        lstm_out, self.hidden = self.lstm(pack_emb_input, self.hidden)
+        #self.hidden = self.init_hidden(self.batch_size)
+        lstm_out, _  = self.lstm(pack_emb_input)
 
         #print "lstm_out=", lstm_out
         pad_lstm_out, lstm_lens = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True)

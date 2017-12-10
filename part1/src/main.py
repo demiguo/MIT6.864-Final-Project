@@ -357,7 +357,7 @@ if __name__ == "__main__":
     if config.use_cuda:
         model = model.cuda()
 
-    optimizer = optim.Adam(model.get_train_parameters(), lr=0.01, weight_decay=1e-8)
+    optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
             dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader)
