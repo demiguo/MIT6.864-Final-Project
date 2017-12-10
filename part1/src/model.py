@@ -153,13 +153,11 @@ class myLSTM(torch.nn.Module):
         outputs = outputs / text_len.float()
         
         # inverse back
-        inverse_outputs = autograd.Variable(torch.zeros((self.batch_size, self.final_dim)))
-        if self.config.use_cuda:
-            inverse_outputs = inverse_outputs.cuda()
-
+        inverse_indices = [0] * self.batch_size
         for i in range(self.batch_size):
-            # i (new) -> indices[i] (old)
-            inverse_outputs[indices[i]] += outputs[i]
+            inverse_indices[indices[i]] = i
+        inverse_indices = torch.LongTensor(inverse_indices)
 
+        inverse_outputs = outputs[inverse_indices]
         return inverse_outputs
 
