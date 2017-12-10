@@ -131,8 +131,8 @@ class myLSTM(torch.nn.Module):
         assert emb.size() == (self.batch_size, self.max_len, self.embedding_dim)
 
         pack_emb_input = torch.nn.utils.rnn.pack_padded_sequence(emb, text_len_list, batch_first=True)
-        self.hidden = self.init_hidden(self.batch_size)
-        lstm_out, self.hidden = self.lstm(pack_emb_input, self.hidden)
+        #self.hidden = self.init_hidden(self.batch_size)
+        lstm_out, _ = self.lstm(pack_emb_input)
 
         #print "lstm_out=", lstm_out
         pad_lstm_out, lstm_lens = torch.nn.utils.rnn.pad_packed_sequence(lstm_out, batch_first=True)

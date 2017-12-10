@@ -34,7 +34,7 @@ class Config:
         parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=20)
 
         parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=40)
-        parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=10)
+        parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=50)
 
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         
@@ -61,7 +61,7 @@ class Config:
         if self.args.model_type == "CNN":
         	self.args.final_dim = 667
         else:
-        	self.args.final_dim = 240
+        	self.args.final_dim = 240 * 2
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
         
