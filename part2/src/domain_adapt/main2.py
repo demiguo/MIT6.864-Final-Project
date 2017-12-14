@@ -445,8 +445,8 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     
 
-    src_dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, i2q, is_train=False)
-    src_test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, i2q, is_train=False)
+    src_dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, src_i2q, is_train=False)
+    src_test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, src_i2q, is_train=False)
     src_dev_loader = torch.utils.data.DataLoader(src_dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
 
