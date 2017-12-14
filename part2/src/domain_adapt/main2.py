@@ -49,7 +49,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
             #print "qid=", qid[i]
             #print "i2q[qid[i]]=", i2q[qid[i]]
             #embed()
-            t, b, t_len, b_len = i2q[qid[i]]
+            t, b, t_len, b_len = src_i2q[qid[i]]
             q_title[i] = torch.LongTensor(t)
             q_body[i] = torch.LongTensor(b)
             q_title_len[i] = t_len
@@ -72,7 +72,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
             similar_ids = np.random.choice(l, num_similar_q, replace=False)
             for j in range(num_similar_q):
                 idx = similar_ids[j]
-                t, b, t_len, b_len = i2q[similar_q[i][idx]]
+                t, b, t_len, b_len = src_i2q[similar_q[i][idx]]
                 similar_title[i][j] = torch.LongTensor(t)
                 similar_body[i][j] = torch.LongTensor(b)
                 similar_title_len[i][j] = t_len
@@ -95,7 +95,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
             candidate_ids = np.random.choice(l, num_candidate_q, replace=False)
             for j in range(num_candidate_q):
                 idx = candidate_ids[j]
-                t, b, t_len, b_len = i2q[candidate_q[i][idx]]
+                t, b, t_len, b_len = src_i2q[candidate_q[i][idx]]
                 candidate_title[i][j] = torch.LongTensor(t)
                 candidate_body[i][j] = torch.LongTensor(b)
                 candidate_title_len[i][j] = t_len
@@ -171,7 +171,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         q1_title_len = torch.zeros((batch_size2)).long()
         q1_body_len = torch.zeros((batch_size2)).long()
         for i in range(batch_size2):
-            t, b, t_len, b_len = i2q[q1_ids[i]]
+            t, b, t_len, b_len = tgt_i2q[q1_ids[i]]
             q1_title[i] = torch.LongTensor(t)
             q1_body[i] = torch.LongTensor(b)
             q1_title_len[i] = t_len
