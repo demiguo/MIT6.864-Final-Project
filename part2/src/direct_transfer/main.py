@@ -241,6 +241,9 @@ def evaluate(model, optimizer, data_loader, i2q):
         candidate_body = autograd.Variable(candidate_body)
         candidate_title_len = autograd.Variable(candidate_title_len)
         candidate_body_len = autograd.Variable(candidate_body_len)
+        if config.use_cuda:
+            candidate_title, candidate_title_len, candidate_body, candidate_body_len =\
+                candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
 
         """ Retrieve Question Embeddings """
 
@@ -253,9 +256,6 @@ def evaluate(model, optimizer, data_loader, i2q):
         candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
         candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
         candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
-        if config.use_cuda:
-            candidate_title, candidate_title_len, candidate_body, candidate_body_len =\
-                candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
 
 
         """ Compute Metrics """
