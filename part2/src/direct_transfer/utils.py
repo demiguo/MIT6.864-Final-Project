@@ -212,7 +212,7 @@ class AndroidDataset(torch.utils.data.Dataset):
 			f = open(data_file + suffix)
 			lines = f.readlines()
 			f.close()
-			for line in lines:
+			for line in tqdm(lines, desc="Android Dataset"):
 				q1, q2 = line.split(" ")
 				self.q1_ids.append(int(q1))
 				self.q2_ids.append(int(q2))

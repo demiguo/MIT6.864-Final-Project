@@ -14,6 +14,7 @@ from IPython import embed
 import utils
 from config import Config
 from model import myCNN, myLSTM
+from direct_transfer import evaluate_for_android
 
 """ Train: return model, optimizer """
 def train(config, model, optimizer, data_loader, i2q):
@@ -332,7 +333,9 @@ if __name__ == "__main__":
 
     # get questions (question dictionary: id -> python array pair (title, body))
     i2q = utils.get_questions(config, w2i)
+    i2q_for_android = utils.get_questions_for_android(config, w2i)
     config.log.info("=> Finish Retrieving Questions")
+
 
     # create dataset
     train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True)
@@ -344,6 +347,11 @@ if __name__ == "__main__":
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
     dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    
+    dev_data_for_android = utils.AndroidDataset(config, config.args.dev_file_for_android, w2i, vocab_size)
+    dev_loader_for_android = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    test_data_for_android = utils.AndroidDataset(config, config.args.test_file_for_android, w2i, vocab_size)
+    test_loader_for_android = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     config.log.info("=> Building Dataset: Finish All")
 
     if config.args.model_type == "CNN":
@@ -357,14 +365,30 @@ if __name__ == "__main__":
         model = model.cuda()
 
     optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
+    best_epoch = -1
+    best_dev_auc = -1
+    best_test_auc = -1
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
             dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader, i2q)
             test_MAP, test_MRR, test_P1, test_P5 = evaluate(model, optimizer, test_loader, i2q)
+
+            dev_auc = evaluate_for_android(model, dev_loader_for_android, i2q_for_android)
+            test_auc = evaluate_for_android(model, test_loader_for_android, i2q_for_android)
+
             # TODO(demi): change this, so only evaluate test on best dev model
             config.log.info("EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss))
             config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
             config.log.info("EPOCH[%d] TEST: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, test_MAP, test_MRR, test_P1, test_P5))
+            config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
+            config.log.info("EPOCH[%d] ANDROID TEST: AUC %.3lf" % (epoch, test_auc))
+            if dev_auc > best_dev_auc:
+                best_epoch = epoch
+                best_dev_auc = dev_auc
+                best_test_auc = test_auc
+                config.log.info("=> Update Best Epoch to %d, based on Android Dev Score" % best_epoch)
+                config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "%s-epoch%d" % (config.args.model_file, epoch)))
+
 
             def save_checkpoint():
                 checkpoint = {"model":model.state_dict(), 
@@ -372,9 +396,9 @@ if __name__ == "__main__":
                               "dev_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (dev_MAP, dev_MRR, dev_P1, dev_P5),
                               "test_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (test_MAP, test_MRR, test_P1, test_P5),
                               "args":config.args}
-                checkpoint_file = config.args.model_file
+                checkpoint_file = "%s-epcoh%d" % (config.args.model_file, epoch)
                 config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))
                 torch.save(checkpoint, checkpoint_file)
             
             save_checkpoint()
-            # TODO(demi): save checkpoint
+    config.log.info("=> Best Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "%s-epoch%d" % (config.args.model_file, epoch)))

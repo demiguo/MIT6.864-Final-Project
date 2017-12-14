@@ -41,8 +41,8 @@ def run(files=my_files):
 		f.close()
 	print "=> Finish Vocabulary Construction"
 
-	f_v.write("<EMPTY>")
-	f_v.write("<UNK>")
+	f_v.write("<EMPTY>\n")
+	f_v.write("<UNK>\n")
 	f_e.write(" ".join(["0"] * embedding_dim) + "\n")
 	f_e.write(" ".join(["0"] * embedding_dim) + "\n")
 
