@@ -11,7 +11,7 @@ if __name__ == "__main__":
 	datadir = "../data/Android/"
 
 	# read all questions
-	f = open(datadir + "corpus.tsv")s
+	f = open(datadir + "corpus.tsv")
 	questions = []
 	id2ind = {}   # qid to index in questions
 	ind = 0
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 
 				# print out size
 				score = torch.nn.CosineSimilarity()(q1_tensor, q2_tensor)
-				print "label=", label, "score=", score[0]
+				#print "label=", label, "score=", score[0]
 				y_true.append(label)
 				y_score.append(score[0])
 			f.close()
