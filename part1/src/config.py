@@ -61,7 +61,7 @@ class Config:
         if self.args.model_type == "CNN":
         	self.args.final_dim = 667
         else:
-        	self.args.final_dim = 240 * 2
+        	self.args.final_dim = 240
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
         

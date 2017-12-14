@@ -1,0 +1,15 @@
+12/13/2017 09:13:37 log to ../log/1204-code-lstm-2017-12-13-21-13.log
+12/13/2017 09:13:37 use_cuda=1
+12/13/2017 09:13:37 => Finish Loading Configuration
+12/13/2017 09:13:43 => Finish Word Processing
+12/13/2017 09:13:44 # of questions: 167765
+12/13/2017 09:13:53 => Finish Retrieving Questions
+12/13/2017 09:13:55 => Building Dataset: Finish Train
+12/13/2017 09:13:55 => Building Dataset: Finish Dev
+12/13/2017 09:13:55 => Building Dataset: Finish Test
+12/13/2017 09:13:55 => Building Dataset: Finish All
+12/13/2017 09:13:55 => Running LSTM Model
+12/13/2017 09:15:36 EPOCH[0] Train Loss 0.868
+12/13/2017 09:15:36 EPOCH[0] DEV: MAP 0.564 MRR 0.699 P@1 0.577 P@5 0.446
+12/13/2017 09:15:36 EPOCH[0] TEST: MAP 0.576 MRR 0.707 P@1 0.575 P@5 0.433
+12/13/2017 09:15:36 => saving checkpoint @ epoch 0 to ../models/1204-code-lstm-2017-12-13-21-13
