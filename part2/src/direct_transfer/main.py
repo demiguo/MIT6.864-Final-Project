@@ -326,7 +326,7 @@ if __name__ == "__main__":
 
 
     # word processing (w2i, i2w, i2v)
-    w2i, i2v, vocab_size = utils.word_processing(config)
+    w2i, i2v, vocab_size = utils.word_processing_glove(config)
     config.args.vocab_size = vocab_size
     config.log.info("=> Finish Word Processing")
 

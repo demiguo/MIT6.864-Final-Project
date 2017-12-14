@@ -17,7 +17,9 @@ NUM_SIMILAR_Q = 20
 NUM_CANDIDATE_Q = 20                     
 
 
-# TODO(demi): change this to glove
+# TODO(demi): change this to glove; let's assume we have .vocab
+
+
 """ Return w2i, i2w, vocab_size """
 def word_processing(config):
 	w2i = {}
@@ -55,6 +57,34 @@ def word_processing(config):
 	f.close()
 	return w2i, i2w, vocab_size
 
+
+""" Glove version Return w2i, i2w, vocab_size """
+def word_processing_glove(config):
+	w2i = {}
+	i2w = {}
+
+	f = open(config.args.pretrained_vocab)
+
+	w2i["<EMPTY>"] = 0
+	i2w[0] = "<EMPTY>"
+
+	w2i["<UNK>"] = 1
+	i2w[1] = "<UNK>"
+
+	vocab_size = 2
+
+	lines = f.readlines()
+	for line in tqdm(lines, desc="Word Processing"):
+		word = line.replace("\n", "")
+
+		if word in w2i:
+			continue
+		w2i[word] = vocab_size
+		i2w[vocab_size] = word
+		vocab_size += 1
+
+	f.close()
+	return w2i, i2w, vocab_size
 
 """ Return i2q: index to a python array pair (padded title, padded body, len title, body title) """
 def get_questions(config, w2i):

@@ -20,8 +20,13 @@ class Config:
         # TODO(demi): change path (../../ instead of ../)
         parser.add_argument('-seed', '--seed', type=int, help="Torch Random Seed", required=False, default=1)
 
-        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../../data/vector/vectors_pruned.200.txt")
-        parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../../data/vector/vectors_only.txt")
+        # TODO(demi): glove all
+        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../../data/vector/glove.840B.300d.txt")
+            
+        # TODO(demi): change this default to glove.vectors
+        parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../../data/vector/glove.vectors")
+        parser.add_argument("-pretrained_vocab", "--pretrained_vocab", help="Vocab Only File", required=False, default="../../data/vector/glove.vocab")
+
         parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/QR/text_tokenized.txt")
         parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
@@ -45,7 +50,7 @@ class Config:
         parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=40)
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=50)
 
-        parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
+        parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=300)
         
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
