@@ -13,8 +13,8 @@ def run(files=my_files):
 	w2i = {}
 	i2w = {}
 
-	f_e = open("../../data/vector/glove.vectors")
-	f_v = open("../../data/vector/glove.vocab")
+	f_e = open("../../data/vector/glove.vectors", "w")
+	f_v = open("../../data/vector/glove.vocab", "w")
 	w2i["<EMPTY>"] = 0
 	i2w[0] = "<EMPTY>"
 
@@ -52,8 +52,8 @@ def run(files=my_files):
 		parts = line.split(" ")  # NB(demi): with "\n"
 		word = parts[0]
 		vec_str = " ".join(parts[1:])
-		print "word", word
-		print "vec_str=", vec_str, "[END}"
+		#print "word", word
+		#print "vec_str=", vec_str, "[END}"
 		
 		if (word in vocab) and (not word in w2i):
 			# keep
