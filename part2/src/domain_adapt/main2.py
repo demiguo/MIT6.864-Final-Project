@@ -479,8 +479,8 @@ if __name__ == "__main__":
         dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, src_dev_loader, src_i2q)
         test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, src_test_loader, src_i2q)
 
-        dev_auc = evaluate_for_android(encoder, dev_loader, i2q)
-        test_auc = evaluate_for_android(encoder, test_loader, i21)
+        dev_auc = evaluate_for_android(encoder, dev_loader, tgt_i2q)
+        test_auc = evaluate_for_android(encoder, test_loader, tgt_i21)
 
         config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
