@@ -67,7 +67,7 @@ class Config:
         random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
         if self.args.model_type == "CNN":
-        	self.args.final_dim = 667
+        	self.args.final_dim = 667 * 2
         else:
         	self.args.final_dim = 240
         if self.args.use_glove:
