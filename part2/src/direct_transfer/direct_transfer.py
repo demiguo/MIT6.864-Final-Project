@@ -77,12 +77,12 @@ if __name__ == "__main__":
     config.log.info("=> Finish Loading Configuration")
 
     # word processing (w2i, i2w, i2v)
-    w2i, i2v, vocab_size = utils.word_processing(config)
+    w2i, i2v, vocab_size = utils.word_processing_glove(config)
     config.args.vocab_size = vocab_size
     config.log.info("=> Finish Word Processing")
 
     # get questions (question dictionary: id -> python array pair (title, body))
-    i2q = utils.get_questions_for_android(config, w2i, lower=True)
+    i2q = utils.get_questions_for_android(config, w2i, lower=False)
     config.log.info("=> Finish Retrieving Questions")
 
     # build android dataset
