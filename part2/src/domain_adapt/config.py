@@ -53,7 +53,7 @@ class Config:
         parser.add_argument("-discriminator_hidden_dim", "--discriminator_hidden_dim", type=int, help="discriminator Hidden Dimension", required=False, default=150)
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
-        parser.add_argument("-loss_delta", "--loss_delta", type=float, help="Loss delta (on Loss2)", required=False, default=1e-4)
+        parser.add_argument("-loss_delta", "--loss_delta", type=float, help="Loss delta (on Loss2)", required=False, default=1e-5)
 
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	

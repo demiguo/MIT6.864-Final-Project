@@ -23,8 +23,8 @@ class myFNN(torch.nn.Module):
         self.MLP = nn.Sequential(
             nn.Linear(self.input_dim, self.hidden_dim),
             nn.ReLU(),
-            nn.Linear(self.hidden_dim, self.hidden_dim),
-            nn.ReLU(),
+            #nn.Linear(self.hidden_dim, self.hidden_dim),
+            #nn.ReLU(),
             nn.Linear(self.hidden_dim, 2),
             nn.LogSoftmax(dim=1)
         ) 
@@ -47,7 +47,7 @@ class myFNN(torch.nn.Module):
 
         mean_acc = (output == target).float().mean().data[0]
         return loss, mean_acc
-        
+
 class myMLP(torch.nn.Module):
     def __init__(self, config):
         super(myMLP, self).__init__()

@@ -197,6 +197,8 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         avg_acc = acc1 * src_num + acc2 * batch_size2
         acc_total += src_num + batch_size2
 
+        if batch_idx  % config.log_step == 0:
+            embed()
         # gradient
         optimizer1.zero_grad()
         optimizer2.zero_grad()
