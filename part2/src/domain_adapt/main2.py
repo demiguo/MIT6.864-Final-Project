@@ -195,7 +195,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer1.zero_grad()
         optimizer2.zero_grad()
         loss = loss1 - config.args.loss_delta * loss2
-        acg_loss += loss.data[0]
+        avg_loss += loss.data[0]
         total += 1
         loss.backward()
         optimizer1.step()
