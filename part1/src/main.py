@@ -174,10 +174,9 @@ def train(config, model, optimizer, data_loader, i2q):
 
 
 """ Evaluate: return model """
-def evaluate(model, optimizer, data_loader):
+def evaluate(model, optimizer, data_loader, i2q):
     model.eval()
     # TODO(demi): currently, this only works for CNN model. In the future, make it compatible for LSTM model.
-    model.train()
 
     total = 0
 
@@ -360,8 +359,8 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             model, optimizer, avg_loss = train(config, model, optimizer, train_loader, i2q)
-            dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader)
-            test_MAP, test_MRR, test_P1, test_P5 = evaluate(model, optimizer, test_loader)
+            dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader, i2q)
+            test_MAP, test_MRR, test_P1, test_P5 = evaluate(model, optimizer, test_loader, i2q)
             # TODO(demi): change this, so only evaluate test on best dev model
             config.log.info("EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss))
             config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
