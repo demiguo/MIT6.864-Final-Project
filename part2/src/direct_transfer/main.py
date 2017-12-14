@@ -376,7 +376,6 @@ if __name__ == "__main__":
             dev_auc = evaluate_for_android(model, dev_loader_for_android, i2q_for_android)
             test_auc = evaluate_for_android(model, test_loader_for_android, i2q_for_android)
 
-            # TODO(demi): change this, so only evaluate test on best dev model
             config.log.info("EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss))
             config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
             config.log.info("EPOCH[%d] TEST: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, test_MAP, test_MRR, test_P1, test_P5))
