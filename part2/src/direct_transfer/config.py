@@ -74,9 +74,9 @@ class Config:
         random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
         if self.args.model_type == "CNN":
-        	self.args.final_dim = 667
+        	self.args.final_dim = 667 * 2
         else:
-        	self.args.final_dim = 240
+        	self.args.final_dim = 240 * 2
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
         
