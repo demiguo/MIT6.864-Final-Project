@@ -377,7 +377,7 @@ if __name__ == "__main__":
     config = Config()
     config.get_config_from_user()
     config.log.info("=> Finish Loading Configuration")
-
+    config.log.info("Config: %s" % str(config))
 
     # word processing (w2i, i2w, i2v)
     w2i, i2v, vocab_size = utils.word_processing_glove(config)
