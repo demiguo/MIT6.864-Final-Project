@@ -268,7 +268,7 @@ def evaluate_for_android(model, data_loader, i2q):
 
 
 """ Evaluate: return model """
-def evaluate(model, optimizer, data_loader, i2q):
+def evaluate(model, data_loader, i2q):
     model.eval()
     # TODO(demi): currently, this only works for CNN model. In the future, make it compatible for LSTM model.
 
@@ -476,8 +476,8 @@ if __name__ == "__main__":
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
         encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
 
-        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, optimizer, dev_loader, i2q)
-        test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, optimizer, test_loader, i2q)
+        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, dev_loader, src_i2q)
+        test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, test_loader, src_i2q)
 
         dev_auc = evaluate_for_android(encoder, src_dev_loader, src_i2q)
         test_auc = evaluate_for_android(encoder, src_test_loader, src_i2q)
