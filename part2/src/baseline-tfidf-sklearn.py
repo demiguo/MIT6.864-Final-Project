@@ -5,7 +5,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import roc_curve, auc
 
 from tqdm import tqdm
-from meter import AUCMeter
 
 if __name__ == "__main__":
 	datadir = "../data/Android/"
@@ -35,7 +34,7 @@ if __name__ == "__main__":
 
 		y_true = []
 		y_score = []
-		meter = AUCMeter()
+
 		for label, suffix in enumerate([".neg.txt", ".pos.txt"]):
 			print "===> Running on suffic %s" % suffix
 
@@ -57,6 +56,24 @@ if __name__ == "__main__":
 				y_score.append(score[0])
 			f.close()
 
-		meter.add(np.array(y_score), np.array(y_true))
-		auc_005 = meter.value(0.05)
+		# now get ROC and AUC
+		fpr, tpr, thresholds = roc_curve(y_true, y_score)
+		print "fpr=", fpr
+		print "tpr=", tpr
+
+		small_005 = 0
+		fpr_005 = []
+		tpr_005 = []
+		for i in range(len(fpr)):
+			if fpr[i] < 0.05:
+				small_005 += 1
+				fpr_005.append(fpr[i])
+				tpr_005.append(tpr[i])
+
+		print "small_005 = %d, all len = %d" % (small_005, len(fpr))
+		auc_all = auc(fpr, tpr)
+
+		auc_005 = auc(fpr_005, tpr_005)
+
+		print "auc_all=", auc_all
 		print "auc_005=", auc_005
