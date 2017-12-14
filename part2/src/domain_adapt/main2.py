@@ -151,7 +151,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         # add loss2: domain 0
         emb1 = q_emb
-        emb2 = similar_emb.view(batch_size * num_similar_q, configs.args.final_dim)
+        emb2 = similar_emb.view(batch_size * num_similar_q, config.args.final_dim)
         emb3 = candidate_emb.view(batch_size * num_candidate_q, config.args.final_dim)
 
         src_emb = torch.cat((emb1, emb2, emb3), 0)
