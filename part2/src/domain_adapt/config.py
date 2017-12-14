@@ -19,19 +19,19 @@ class Config:
         parser = argparse.ArgumentParser()
         parser.add_argument('-seed', '--seed', type=int, help="Torch Random Seed", required=False, default=1)
 
-        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../data/vector/vectors_pruned.200.txt")
-        parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../data/vector/vectors_only.txt")
-        parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../data/QR/text_tokenized.txt")
-        parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../data/Android/corpus.tsv")
+        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../../data/vector/vectors_pruned.200.txt")
+        parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../../data/vector/vectors_only.txt")
+        parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/QR/text_tokenized.txt")
+        parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
-        parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../data/QR/test.txt")
-        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../data/QR/dev.txt")
+        parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../../data/QR/test.txt")
+        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../.../data/QR/dev.txt")
 
-        parser.add_argument("-test_file_for_android", "--test_file_for_android", help="Test File _for_android", required=False, default="../data/Android/test")
-        parser.add_argument("-dev_file_for_android", "--dev_file_for_android", help="Dev File _for_android", required=False, default="../data/Android/dev")
+        parser.add_argument("-test_file_for_android", "--test_file_for_android", help="Test File _for_android", required=False, default="../../data/Android/test")
+        parser.add_argument("-dev_file_for_android", "--dev_file_for_android", help="Dev File _for_android", required=False, default="../../data/Android/dev")
 
-        parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../log")
-        parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../models")
+        parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../../log")
+        parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../../models")
         parser.add_argument("-pretrained_encoder", "--pretrained_encoder", help="Pre-trianed Source Encoder", required=True)
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
@@ -43,12 +43,12 @@ class Config:
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=2000)
 
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
-        
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	
        	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
         parser.add_argument('-cuda', '--cuda', type=bool, help="Use CUDA or not", required=False, default=False)
+        parser.add_argument("-use_glove", "--use_glove", type=bool, help="Use Glove", required=False, default=True)
 
         parser.add_argument("-log_step", "--log_step", type=int, help="#Steps Between Printing Logs", required=False, default=100)
         self.args = parser.parse_args()
@@ -69,6 +69,8 @@ class Config:
         	self.args.final_dim = 667
         else:
         	self.args.final_dim = 240
+        if self.args.use_glove:
+            self.args.embedding_dim = 300
         self.args.discriminator_hidden_dim = 128
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)

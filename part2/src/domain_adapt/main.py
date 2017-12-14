@@ -115,7 +115,7 @@ def train(config, src_encoder, tgt_encoder, discriminator, encoder_optimizer, di
         discriminator_optimizer.step()
 
         # calculate accuracy of discriminator
-        # NOTE(jason): it is reasonable to conjure that the acc should be 50%, since we 
+        # NB: it is reasonable to conjure that the acc should be 50%, since we 
         # want to deceive the discriminator
         domain_label_pred_cls = torch.squeeze(domain_label_pred.max(1)[1])
         accuracy = (domain_label_pred_cls == concat_domain_label).float().mean()
@@ -124,7 +124,7 @@ def train(config, src_encoder, tgt_encoder, discriminator, encoder_optimizer, di
         discriminator_optimizer.zero_grad()
         encoder_optimizer.zero_grad()
 
-        # NOTE(jason): I re-compute features of target domain because I'm not sure 
+        # NB: I re-compute features of target domain because I'm not sure 
         # if is correct to use pre-computed features
         tgt_q_emb = 0.5 * (tgt_encoder(tgt_q_title, tgt_q_title_len) + tgt_encoder(tgt_q_body, tgt_q_body_len))
         assert tgt_q_emb.size() == (batch_size, config.args.final_dim)
@@ -149,7 +149,7 @@ def train(config, src_encoder, tgt_encoder, discriminator, encoder_optimizer, di
                         loss_encoder.data[0],
                         accuracy.data[0]))
 
-        # NOTE(jason): I'm not sure which loss should be returned
+        # NB: I'm not sure which loss should be returned
         avg_loss += 0 * batch_size
     avg_loss /= total
     return tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, avg_loss
@@ -162,13 +162,16 @@ if __name__ == "__main__":
 
 
     # word processing (w2i, i2w, i2v)
-    w2i, i2v, vocab_size = utils.word_processing(config)
+    if config.args.use_glove:
+        w2i, i2v, vocab_size = utils.word_processing_glove(config)
+    else:
+        w2i, i2v, vocab_size = utils.word_processing(config)
     config.args.vocab_size = vocab_size
     config.log.info("=> Finish Word Processing")
 
     # get questions (question dictionary: id -> python array pair (title, body))
     src_i2q = utils.get_questions(config, w2i)
-    tgt_i2q = utils.get_questions_for_android(config, w2i, lower=True)
+    tgt_i2q = utils.get_questions_for_android(config, w2i)
     config.log.info("=> Finish Retrieving Questions")
 
     # create dataset
@@ -224,7 +227,7 @@ if __name__ == "__main__":
     test_AUC = evaluate_for_android(tgt_encoder, test_loader, tgt_i2q, config)
     config.log.info("TARGET Dev AUC(.05): %.3lf || Test AUC(.05): %.3lf" % (dev_AUC, test_AUC))
     
-    # NOTE(jason): Here suppose we have had source_encoder, we need to train a target_encoder with a domain discriminator
+    # NB: Here suppose we have had source_encoder, we need to train a target_encoder with a domain discriminator
     # The target encoder will be trained using encoder_optimizer, while the domain discriminator will be trained using 
     # discriminator_optimizer.
     
