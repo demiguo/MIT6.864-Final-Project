@@ -372,7 +372,7 @@ def evaluate_for_android(model, data_loader, i2q):
 
     auc = meter.value(0.05)
     return auc 
-    
+
 if __name__ == "__main__":
     config = Config()
     config.get_config_from_user()
@@ -391,7 +391,7 @@ if __name__ == "__main__":
 
 
     # create dataset
-    train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True)
+    train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True, K_neg=config.args.data_neg_num)
     config.log.info("=> Building Dataset: Finish Train")
     dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, i2q, is_train=False)
     config.log.info("=> Building Dataset: Finish Dev")
