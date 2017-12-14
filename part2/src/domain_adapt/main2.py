@@ -232,7 +232,7 @@ if __name__ == "__main__":
     # discriminator_optimizer.
     
     encoder_optimizer = optim.Adam(tgt_encoder.get_train_parameters(), lr=1e-4, weight_decay=1e-9)
-    discriminator_optimizer = optim.Adam(discriminator.get_train_parameters(), lr=-1e-4, weight_decay=1e-9)
+    discriminator_optimizer = optim.Adam(discriminator.get_train_parameters(), lr=1e-4, weight_decay=1e-9)
 
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, avg_loss = train(config, \
