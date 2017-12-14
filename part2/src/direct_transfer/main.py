@@ -14,6 +14,7 @@ from IPython import embed
 import utils
 from config import Config
 from model import myCNN, myLSTM
+from meter import AUCMeter 
 
 """ Train: return model, optimizer """
 def train(config, model, optimizer, data_loader, i2q):
