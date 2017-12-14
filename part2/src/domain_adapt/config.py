@@ -26,7 +26,7 @@ class Config:
         parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
         parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../../data/QR/test.txt")
-        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../.../data/QR/dev.txt")
+        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../../data/QR/dev.txt")
 
         parser.add_argument("-test_file_for_android", "--test_file_for_android", help="Test File _for_android", required=False, default="../../data/Android/test")
         parser.add_argument("-dev_file_for_android", "--dev_file_for_android", help="Dev File _for_android", required=False, default="../../data/Android/dev")
