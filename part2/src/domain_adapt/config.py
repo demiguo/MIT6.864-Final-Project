@@ -56,7 +56,7 @@ class Config:
         if torch.cuda.is_available() and self.args.cuda:
             self.use_cuda = True
             torch.cuda.manual_seed(self.args.seed)
-            torch.cuda.set_device(0)
+            torch.cuda.set_device(1)
         else:
             self.use_cuda = False
         self.kwargs = {'num_workers': 1, 'pin_memory': True} if self.use_cuda else {}
