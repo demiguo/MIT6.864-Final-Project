@@ -141,10 +141,10 @@ def train(config, model, optimizer, data_loader, i2q):
         q_expand_emb = q_emb.expand(batch_size, num_candidate_q, d)
         assert q_expand_emb.size() == candidate_emb.size()
         neg_scores = nn.CosineSimilarity(dim=2, eps=1e-6)(q_expand_emb, candidate_emb)
-        assert neg_scores.size() == (batch_size, num_candidate_q)
+        #assert neg_scores.size() == (batch_size, num_candidate_q)
 
         loss = neg_scores - pos_score + config.args.delta_constant
-        assert loss.size() == (batch_size, num_candidate_q)
+        #assert loss.size() == (batch_size, num_candidate_q)
         loss = torch.max(loss, dim=1)[0].view(batch_size,1)
         loss = (loss > 0).float() * loss
         loss = torch.mean(loss) # mean batch loss
