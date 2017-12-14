@@ -29,7 +29,7 @@ def train(config, model, optimizer, data_loader, i2q):
         # candidate_q: batch_size * 20 (tensor)
         # label: batch_size * 20 (tensor)
         num_similar_q = 1
-        num_candidate_q = 20
+        num_candidate_q = config.args.data_neg_num
 
         batch_size = qid.size(0)
         total += batch_size
