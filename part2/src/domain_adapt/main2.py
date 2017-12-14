@@ -279,7 +279,8 @@ if __name__ == "__main__":
     src_train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, src_i2q, is_train=True)
     src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
     tgt_train_data = utils.QuestionList(config.args.question_file_for_android)
-    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.batch_size, **config.kwargs)
+    # TODO(demi): now assume target batch size = source batch size * 4; change this to independent
+    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.batch_size * 4, **config.kwargs)
     config.log.info("=> Building Dataset: Finish Train")
 
     
@@ -324,7 +325,7 @@ if __name__ == "__main__":
             best_dev_auc = dev_auc
             best_test_auc = test_auc
             config.log.info("=> Update Best Epoch to %d, based on Android Dev Score" % best_epoch)
-            config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "domain-adapt-2-%s-epoch%d" % (config.args.model_file, epoch)))
+            config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "%s-domain-adapt-2-epoch%d" % (config.args.model_file, epoch)))
 
         def save_checkpoint():
             checkpoint = {"encoder":encoder.state_dict(), 
@@ -333,7 +334,7 @@ if __name__ == "__main__":
                           "optimizer2":optimizer2.state_dict(),
                           "auc": "Dev AUC %.3lf || Test AUC %.3lf" % (dev_auc, test_auc),
                           "args":config.args}
-            checkpoint_file = "domain-adapt-2-%s-epoch%d" % (config.args.model_file, epoch)
+            checkpoint_file = "%s-domain-adapt-2-epoch%d" % (config.args.model_file, epoch)
             config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))
             torch.save(checkpoint, checkpoint_file)
         save_checkpoint()
