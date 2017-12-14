@@ -476,11 +476,11 @@ if __name__ == "__main__":
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
         encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
 
-        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, dev_loader, src_i2q)
-        test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, test_loader, src_i2q)
+        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, src_dev_loader, src_i2q)
+        test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, src_test_loader, src_i2q)
 
-        dev_auc = evaluate_for_android(encoder, src_dev_loader, src_i2q)
-        test_auc = evaluate_for_android(encoder, src_test_loader, src_i2q)
+        dev_auc = evaluate_for_android(encoder, dev_loader, i2q)
+        test_auc = evaluate_for_android(encoder, test_loader, i21)
 
         config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
