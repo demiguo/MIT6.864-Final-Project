@@ -10,6 +10,39 @@ import torch.utils.data
 import datetime
 from tqdm import tqdm
 
+
+
+class myFNN(torch.nn.Module):
+    def __init__(self, config):
+        super(myFNN, self).__init__()
+        self.config = config
+        self.input_dim = config.args.final_dim
+        self.hidden_dim = config.args.discriminator_hidden_dim
+        self.restored = False
+
+        self.MLP = nn.Sequential(
+            nn.Linear(self.input_dim, self.hidden_dim),
+            nn.ReLU(),
+            nn.Linear(self.hidden_dim, self.hidden_dim),
+            nn.ReLU(),
+            nn.Linear(self.hidden_dim, 2),
+            nn.LogSoftmax(dim=1)
+        ) 
+
+    def get_train_parameters(self):
+        params = []
+        for param in self.parameters():
+            if param.requires_grad == True:
+                params.append(param)
+        return params
+    
+    def forward(self, input):
+        return self.MLP(input)
+
+    def loss(self, input, target):
+        print "to be implemented" 
+
+
 class myMLP(torch.nn.Module):
     def __init__(self, config):
         super(myMLP, self).__init__()
