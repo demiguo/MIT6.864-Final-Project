@@ -66,7 +66,6 @@ def evaluate_for_android(model, data_loader, i2q):
 
         # q1_emb, q2_emb: (batch_size, final_dim)
         scores = nn.CosineSimilarity()(q1_emb, q2_emb).view(-1)
-        print "labels.size()=", labels.size(), " scores.data.size=", scores.data.size()
         meter.add(scores.data, labels)
 
     auc = meter.value(0.05)
