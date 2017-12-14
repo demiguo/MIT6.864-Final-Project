@@ -16,6 +16,8 @@ from IPython import embed
 NUM_SIMILAR_Q = 20
 NUM_CANDIDATE_Q = 20                     
 
+
+# TODO(demi): change this to glove
 """ Return w2i, i2w, vocab_size """
 def word_processing(config):
 	w2i = {}
@@ -112,11 +114,13 @@ def get_questions(config, w2i):
 
 
 """ Return i2q for android: index to a python array pair (padded title, padded body, len title, body title) """
-def get_questions_for_android(config, w2i):
+def get_questions_for_android(config, w2i, lower=False):  # TODO(demi): change lower = False when we are using Glove
 	i2q = {}
 	f = open(config.args.question_file_for_android)
 
 	def getw2i(word):
+		if lower:
+			word = word.lower()
 		if word not in w2i:
 			return w2i["<UNK>"]
 		else:
@@ -170,7 +174,31 @@ def get_questions_for_android(config, w2i):
 """ q1_id, q2_id, label (0/1) """
 class AndroidDataset(torch.utils.data.Dataset):
 	def __init__(self, config, data_file, w2i, vocab_size):
-		for label, suffix in enumerate([".pos.txt", ".neg.txt"])
+
+		self.q1_ids = []
+		self.q2_ids = []
+		self.labels = []
+		for label, suffix in enumerate([".neg.txt", ".pos.txt"]):  # NB(demi): 0 neg; 1 pos
+			f = open(data_file + suffix)
+			lines = f.readlines()
+			f.close()
+			for line in lines:
+				q1, q2 = line.split(" ")
+				self.q1_ids.append(int(q1))
+				self.q2_ids.append(int(q2))
+				self.labels.append(label)
+
+		self.data_size = len(self.q1_ids)
+
+		self.q1_ids = np.array(self.q1_ids)
+		self.q2_ids = np.array(self.q2_ids)
+		self.labels	= np.array(self.labels)
+
+	def __getitem__(self, index):
+		return (self.q1_ids[index], self.q2_ids[index], self.labels[index])
+
+	def __len__(self):
+		return self.data_size
 
 """ qid, similar_q, candidate_q, label """
 class QRDataset(torch.utils.data.Dataset):
