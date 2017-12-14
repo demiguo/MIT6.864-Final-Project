@@ -391,7 +391,7 @@ if __name__ == "__main__":
 
 
     # create dataset
-    train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True, K_neg=config.args.data_neg_num)
+    train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, i2q, is_train=True)
     config.log.info("=> Building Dataset: Finish Train")
     dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, i2q, is_train=False)
     config.log.info("=> Building Dataset: Finish Dev")
