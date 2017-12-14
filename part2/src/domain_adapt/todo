@@ -1,0 +1,27 @@
+
+PART1
+* set up GPU instance
+
+* CNN
+- check how many positive examples to use (do you prune them)
+- what are possible reasons that it doesn't work
+
+0.finish LSTM code 
+1.check cosine similarity scores; check all intermediate scores
+2.set up GPU instances
+3.(did i sort them in ascending order)?
+
+
+* LSTM
+- finish LSTM code
+
+
+
+
+Classes:
+- distributed system
+- 6.858 computer security 
+- 6.437 inference (20 hours)
+- 15.401 intro to finance 
+- 6.438 inference (algorithms)
+
