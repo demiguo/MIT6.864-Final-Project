@@ -45,7 +45,8 @@ class myFNN(torch.nn.Module):
         if not acc:
             return loss
 
-        mean_acc = (output == target).float().mean().data[0]
+        predicts = torch.max(output, dim=1)[1]
+        mean_acc = (predicts == target).float().mean().data[0]
         return loss, mean_acc
 
 class myMLP(torch.nn.Module):
