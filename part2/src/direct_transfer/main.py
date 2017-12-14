@@ -417,7 +417,7 @@ if __name__ == "__main__":
     if config.use_cuda:
         model = model.cuda()
 
-    optimizer = optim.Adam(model.get_train_parameters(), lr=0.001, weight_decay=1e-8)
+    optimizer = optim.Adam(model.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
     best_epoch = -1
     best_dev_auc = -1
     best_test_auc = -1
