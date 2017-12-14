@@ -41,6 +41,7 @@ class Config:
 
         parser.add_argument("-max_body_len", "--max_body_len", type=int,help="Max Question Body Length", required=False, default=100)
         parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=20)
+        parser.add_argument("-data_neg_num", "--data_neg_num", type=int, help="Data Neg Examples Limit", required=False, default=20)
 
         parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=128)
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=2000)
