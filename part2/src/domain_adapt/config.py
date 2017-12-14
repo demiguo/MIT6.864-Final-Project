@@ -43,10 +43,14 @@ class Config:
         parser.add_argument("-max_title_len", "--max_title_len", type=int, help="Max Question Title Length", required=False, default=20)
         parser.add_argument("-data_neg_num", "--data_neg_num", type=int, help="Data Neg Examples Limit", required=False, default=20)
 
-        parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=32)
+        parser.add_argument("-src_batch_size", "--src_batch_size", type=int, help="Source Batch Size", required=False, default=32)
+        parser.add_argument("-tgt_batch_size", "--tgt_batch_size", type=int, help="Target Batch Size", required=False, default=96)
+
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=2000)
         parser.add_argument("-init_lr", "--init_lr", type=float, help="Initial Learning Rate", required=False, default=0.001)
 
+        parser.add_argument("-final_dim", "--final_dim", type=int, help="Final Dimension", required=False, default=100)
+        parser.add_argument("-discriminator_hidden_dim", "--discriminator_hidden_dim", type=int, help="discriminator Hidden Dimension", required=False, default=150)
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
         parser.add_argument("-loss_delta", "--loss_delta", type=float, help="Loss delta (on Loss2)", required=False, default=1e-4)
@@ -56,14 +60,14 @@ class Config:
        	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
         parser.add_argument('-cuda', '--cuda', type=bool, help="Use CUDA or not", required=False, default=False)
         parser.add_argument("-use_glove", "--use_glove", type=bool, help="Use Glove", required=False, default=True)
-
+        parser.add_argument("-cuda_device", "--cuda_device", type=int, help="Cuda Device", required=False, default=1)
         parser.add_argument("-log_step", "--log_step", type=int, help="#Steps Between Printing Logs", required=False, default=100)
         self.args = parser.parse_args()
 
         if torch.cuda.is_available() and self.args.cuda:
             self.use_cuda = True
             torch.cuda.manual_seed(self.args.seed)
-            torch.cuda.set_device(1)
+            torch.cuda.set_device(self.args.cuda_device)
         else:
             self.use_cuda = False
         self.kwargs = {'num_workers': 1, 'pin_memory': True} if self.use_cuda else {}
@@ -72,15 +76,10 @@ class Config:
         np.random.seed(self.args.seed)
         random.seed(self.args.seed)
         torch.manual_seed(self.args.seed)
-        if self.args.model_type == "CNN":
-        	self.args.final_dim = 667 * 2
-        else:
-        	self.args.final_dim = 240
         if self.args.use_glove:
             self.args.embedding_dim = 300
             self.args.pretrained_wordvec = "../../data/vector/glove.vectors"
             self.args.pretrained_vocab = "../../data/vector/glove.vocab"
-        self.args.discriminator_hidden_dim = 128
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
         

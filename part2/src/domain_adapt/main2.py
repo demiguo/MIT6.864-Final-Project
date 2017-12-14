@@ -23,6 +23,9 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
     avg_loss = 0
     total = 0
 
+    acc_total = 0
+    avg_acc = 0
+
     combined_data_loader = zip(src_data_loader, tgt_data_loader)
     max_iteration_per_epoch = min(len(src_data_loader), len(tgt_data_loader))
 
@@ -160,7 +163,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         if config.use_cuda:
             src_target = src_target.cuda()
         assert src_emb.size() == (src_num, config.args.final_dim)
-        loss2 = discriminator.loss(src_emb, src_target)
+        loss2, acc1 = discriminator.loss(src_emb, src_target, acc=True)
 
         # add loss2: domain 1
         q1_ids = tgt_batch
@@ -188,8 +191,11 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         tgt_target = torch.autograd.Variable(torch.ones((batch_size2)).long())
         if config.use_cuda:
             tgt_target = tgt_target.cuda()
-        loss2 += discriminator.loss(tgt_emb, tgt_target)
+        tmp_loss, acc2 = discriminator.loss(tgt_emb, tgt_target, acc=True)
+        loss2 += tmp_loss
 
+        avg_acc = acc1 * src_num + acc2 * batch_size2
+        acc_total += src_num + batch_size2
 
         # gradient
         optimizer1.zero_grad()
@@ -202,7 +208,8 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer2.step()
 
     avg_loss /= total   # TODO(demi): verify such average is a ok average
-    return encoder, discriminator, optimizer1, optimizer1, avg_loss
+    avg_acc /= acc_total
+    return encoder, discriminator, optimizer1, optimizer1, avg_loss, avg_acc
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(model, data_loader, i2q):
@@ -256,6 +263,153 @@ def evaluate_for_android(model, data_loader, i2q):
 
     auc = meter.value(0.05)
     return auc 
+
+
+""" Evaluate: return model """
+def evaluate(model, optimizer, data_loader, i2q):
+    model.eval()
+    # TODO(demi): currently, this only works for CNN model. In the future, make it compatible for LSTM model.
+
+    total = 0
+
+    MAP = 0
+    MRR = 0
+    P1 = 0
+    P5 = 0
+    for batch_idx, (qid, similar_q, candidate_q, label, similar_num, candidate_num) in tqdm(enumerate(data_loader), desc="Evaluating"):
+        # qid: batch_size (tensor)
+        # similar_q: batch_size * num_similar_q (tensor)
+        # candidate_q: batch_size * 20 (tensor)
+        # label: batch_size * 20 (tensor)
+        num_candidate_q = 20
+
+        batch_size = qid.size(0)
+        total += batch_size
+        assert qid.size() == (batch_size,)
+
+
+        """ Retrieve Question Text """
+
+        # get question title and body
+        q_title = torch.zeros((batch_size, config.args.max_title_len)).long()
+        q_body = torch.zeros((batch_size, config.args.max_body_len)).long()
+        q_title_len = torch.zeros((batch_size)).long()
+        q_body_len = torch.zeros((batch_size)).long()
+        for i in range(batch_size):
+            #print "qid=", qid[i]
+            #print "i2q[qid[i]]=", i2q[qid[i]]
+            #embed()
+            t, b, t_len, b_len = i2q[qid[i]]
+            q_title[i] = torch.LongTensor(t)
+            q_body[i] = torch.LongTensor(b)
+            q_title_len[i] = t_len
+            q_body_len[i] = b_len
+            #embed()
+        q_title = autograd.Variable(q_title)
+        q_body = autograd.Variable(q_body)
+        q_title_len = autograd.Variable(q_title_len)
+        q_body_len = autograd.Variable(q_body_len)
+        if config.use_cuda:
+            q_title, q_title_len, q_body, q_body_len = q_title.cuda(), q_title_len.cuda(), q_body.cuda(), q_body_len.cuda()
+
+
+        # get candidate question title and body
+        candidate_title = torch.zeros((batch_size, num_candidate_q, config.args.max_title_len)).long()
+        candidate_body = torch.zeros((batch_size, num_candidate_q, config.args.max_body_len)).long()
+        candidate_title_len = torch.zeros((batch_size, num_candidate_q)).long()
+        candidate_body_len = torch.zeros((batch_size, num_candidate_q)).long()
+        for i in range(batch_size):
+            l = candidate_num[i]
+            assert l == num_candidate_q
+            candidate_ids = list(range(l))
+            for j in range(num_candidate_q):
+                idx = candidate_ids[j]
+                t, b, t_len, b_len = i2q[candidate_q[i][idx]]
+                candidate_title[i][j] = torch.LongTensor(t)
+                candidate_body[i][j] = torch.LongTensor(b)
+                candidate_title_len[i][j] = t_len
+                candidate_body_len[i][j] = b_len
+        candidate_title = autograd.Variable(candidate_title)
+        candidate_body = autograd.Variable(candidate_body)
+        candidate_title_len = autograd.Variable(candidate_title_len)
+        candidate_body_len = autograd.Variable(candidate_body_len)
+        if config.use_cuda:
+            candidate_title, candidate_title_len, candidate_body, candidate_body_len =\
+                candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
+
+        """ Retrieve Question Embeddings """
+
+        q_emb = 0.5 * (model(q_title, q_title_len)+ model(q_body, q_body_len))
+        assert q_emb.size() == (batch_size, config.args.final_dim)
+
+        candidate_title = candidate_title.contiguous().view(batch_size * num_candidate_q, config.args.max_title_len)
+        candidate_body = candidate_body.contiguous().view(batch_size * num_candidate_q, config.args.max_body_len)
+        candidate_title_len = candidate_title_len.contiguous().view(batch_size * num_candidate_q)
+        candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
+        candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
+        candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
+
+
+        """ Compute Metrics """
+        d = config.args.final_dim
+        q_emb = q_emb.view(batch_size, 1, d)
+        q_expand_emb = q_emb.expand(batch_size, num_candidate_q, d)
+        assert q_expand_emb.size() == candidate_emb.size()
+
+        scores = nn.CosineSimilarity(dim=2, eps=1e-6)(q_expand_emb, candidate_emb)
+        assert scores.size() == (batch_size, num_candidate_q)
+        scores = scores.cpu().data.numpy()
+        assert scores.shape == (batch_size, num_candidate_q)
+
+        # TODO(demi): move these metrics calculation to other files
+        for batch_id in range(batch_size):
+            batch_scores = scores[batch_id]
+            batch_ranks = np.argsort(-batch_scores)
+
+            # MAP
+            batch_MAP = 0
+            correct = 0
+            tmp = []
+            for i in range(num_candidate_q):
+                idx = batch_ranks[i]
+                assert label[batch_id][idx] == 0 or label[batch_id][idx] == 1
+                if label[batch_id][idx] == 1:
+                    correct += 1
+                    tmp.append(1.0 * correct / (i + 1))
+            tmp = np.array(tmp)
+            batch_MAP = 0 if np.size(tmp) == 0 else tmp.mean()
+            MAP += batch_MAP
+
+            # MRR
+            first_correct = num_candidate_q + 1
+            for i in range(num_candidate_q):
+                idx = batch_ranks[i]
+                if label[batch_id][idx] == 1:
+                    first_correct = i + 1
+                    break
+            MRR += 1.0 / first_correct
+
+            # P@1
+            batch_P1 = 0
+            for i in range(1):
+                idx = batch_ranks[i]
+                if label[batch_id][idx] == 1:
+                    batch_P1 += 1
+            batch_P1 /= 1.0
+            P1 += batch_P1
+
+            # P@5
+            batch_P5 = 0
+            for i in range(5):
+                idx = batch_ranks[i]
+                if label[batch_id][idx] == 1:
+                    batch_P5 += 1
+            batch_P5 /= 5.0
+            P5 += batch_P5
+
+
+    return MAP / total, MRR / total, P1 / total, P5 / total
+
 if __name__ == "__main__":
     config = Config()
     config.get_config_from_user()
@@ -277,10 +431,9 @@ if __name__ == "__main__":
 
 
     src_train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, src_i2q, is_train=True)
-    src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
+    src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.src_batch_size, shuffle=True, **config.kwargs)
     tgt_train_data = utils.QuestionList(config.args.question_file_for_android)
-    # TODO(demi): now assume target batch size = source batch size * 4; change this to independent
-    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.batch_size * 4, **config.kwargs)
+    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.tgt_batch_size, **config.kwargs)
     config.log.info("=> Building Dataset: Finish Train")
 
     
@@ -288,6 +441,13 @@ if __name__ == "__main__":
     dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     test_data = utils.AndroidDataset(config, config.args.test_file_for_android, w2i, vocab_size)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    
+
+    src_dev_data = utils.QRDataset(config, config.args.dev_file, w2i, vocab_size, i2q, is_train=False)
+    src_test_data = utils.QRDataset(config, config.args.test_file, w2i, vocab_size, i2q, is_train=False)
+    src_dev_loader = torch.utils.data.DataLoader(src_dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+
     config.log.info("=> Building Dataset: Finish All")
 
 
@@ -312,14 +472,20 @@ if __name__ == "__main__":
     best_test_auc = -1
 
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
-        encoder, discriminator, optimizer1, optimizer2, avg_loss = train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
+        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
 
-        dev_auc = evaluate_for_android(encoder, dev_loader, tgt_i2q)
-        test_auc = evaluate_for_android(encoder, test_loader, tgt_i2q)
+        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(model, optimizer, dev_loader, i2q)
+        test_MAP, test_MRR, test_P1, test_P5 = evaluate(model, optimizer, test_loader, i2q)
 
-        config.log.info("EPOCH[%d] Train Loss %.3lf" % (epoch, avg_loss))
+        dev_auc = evaluate_for_android(encoder, src_dev_loader, src_i2q)
+        test_auc = evaluate_for_android(encoder, src_test_loader, src_i2q)
+
+        config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
         config.log.info("EPOCH[%d] ANDROID TEST: AUC %.3lf" % (epoch, test_auc))
+        config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
+        config.log.info("EPOCH[%d] TEST: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, test_MAP, test_MRR, test_P1, test_P5))
+        
         if dev_auc > best_dev_auc:
             best_epoch = epoch
             best_dev_auc = dev_auc

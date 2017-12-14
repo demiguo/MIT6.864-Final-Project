@@ -39,11 +39,15 @@ class myFNN(torch.nn.Module):
     def forward(self, input):
         return self.MLP(input)
 
-    def loss(self, input, target):
+    def loss(self, input, target, acc=False):
         output = self(input)
-        return torch.nn.CrossEntropyLoss()(output, target)
+        loss = torch.nn.CrossEntropyLoss()(output, target)
+        if not acc:
+            return loss
 
-
+        mean_acc = (output == target).float().mean().data[0]
+        return loss, mean_acc
+        
 class myMLP(torch.nn.Module):
     def __init__(self, config):
         super(myMLP, self).__init__()
