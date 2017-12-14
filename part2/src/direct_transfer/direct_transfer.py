@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     checkpoint = torch.load(config.args.load_model)
     model.load_state_dict(checkpoint["model"])
-
+    config.log.info("=> Loaded model")
 
     # evaluate function (similar to main.py)
     dev_auc = evaluate_for_android(model, dev_loader, i2q)
