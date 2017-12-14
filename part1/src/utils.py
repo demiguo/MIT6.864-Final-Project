@@ -11,7 +11,7 @@ import datetime
 from tqdm import tqdm
 
 from IPython import embed
-from sets import Set
+#from sets import Set
 
 NUM_SIMILAR_Q = 20
 NUM_CANDIDATE_Q = 20                     
@@ -42,7 +42,7 @@ def word_processing(config):
 		word = l[0]
 		vec = l[1:]
 		if word in w2i:
-			print "[warning]word %s already in w2i" % word
+			#print "[warning]word %s already in w2i" % word
 			continue
 		w2i[word] = vocab_size
 		i2w[vocab_size] = word
@@ -99,13 +99,13 @@ def get_questions(config, w2i):
 			else:
 				body_ids.append(0)
 		if qid in i2q:
-			print "qid %d already in i2q" % qid
+			#print "qid %d already in i2q" % qid
 			continue
 
 		assert len(title_ids) == config.args.max_title_len
 		assert len(body_ids) == config.args.max_body_len
 
-		i2q[qid] = (title_ids, body_ids, min(config.args.max_title_len, len(title)), min(config.args.max_body_len,len(body)))
+		i2q[qid] = (title_ids, body_ids, min(config.args.max_title_len, len(title)), min(config.args.max_body_len, len(body)))
 	f.close()
 	return i2q
 
@@ -147,8 +147,8 @@ class QRDataset(torch.utils.data.Dataset):
 				if len(s) > prune_positive_sample:
 					continue
 			else:
-				if len(s) > 20:
-					print "test/dev: positive examples #= %d" % len(s)
+				#if len(s) > 20:
+					#print "test/dev: positive examples #= %d" % len(s)
 				if len(s) == 1 and s[0] == "":
 					continue
 
@@ -183,7 +183,7 @@ class QRDataset(torch.utils.data.Dataset):
 
 
 			self.qid[cur_index] = int(q)
-			s_set = Set([])
+			s_set = set([])
 			for j in range(len(s)):
 				s_set.add(int(s[j]))
 			

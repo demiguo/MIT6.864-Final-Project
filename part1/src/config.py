@@ -78,4 +78,5 @@ class Config:
         self.log.addHandler(self.ch)
 
         self.log.info("log to %s" % self.args.log_file)
+        self.log.info("use_cuda=%d" % self.use_cuda)
 
