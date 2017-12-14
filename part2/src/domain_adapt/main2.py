@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
         def save_checkpoint():
             checkpoint = {"encoder":encoder.state_dict(), 
-                          "discriminator":discriminator.state_dict()
+                          "discriminator":discriminator.state_dict(),
                           "optimizer1":optimizer1.state_dict(),
                           "optimizer2":optimizer2.state_dict(),
                           "auc": "Dev AUC %.3lf || Test AUC %.3lf" % (dev_auc, test_auc),

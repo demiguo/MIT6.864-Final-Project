@@ -33,7 +33,7 @@ class Config:
 
         parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../../log")
         parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../../models")
-        parser.add_argument("-pretrained_encoder", "--pretrained_encoder", help="Pre-trianed Source Encoder", required=True)
+        parser.add_argument("-pretrained_encoder", "--pretrained_encoder", help="Pre-trianed Source Encoder", required=False, default="../../models/1204-code-CNN-2017-12-15-3-38-epcoh49")
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
 
@@ -46,7 +46,7 @@ class Config:
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
         parser.add_argument("-loss_delta", "--loss_delta", type=float, help="Loss delta (on Loss2)", required=False, default=1e-4)
-        
+
         parser.add_argument("-model_type", "--model_type", help="Model Type", required=False, default="CNN")
        	
        	parser.add_argument("-mode", "--mode", help="Mode", required=False, default="train")
