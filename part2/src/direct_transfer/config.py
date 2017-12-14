@@ -20,22 +20,22 @@ class Config:
         # TODO(demi): change path (../../ instead of ../)
         parser.add_argument('-seed', '--seed', type=int, help="Torch Random Seed", required=False, default=1)
 
-        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default=".../../data/vector/vectors_pruned.200.txt")
+        parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../../data/vector/vectors_pruned.200.txt")
         parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../../data/vector/vectors_only.txt")
-        parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/text_tokenized.txt")
-        parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.csv")
+        parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/QR/text_tokenized.txt")
+        parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
-        parser.add_argument("-train_file", "--train_file", help="Train File", required=False, default="../data/train_random.txt")
-        parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../data/test.txt")
-        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../data/dev.txt")
+        parser.add_argument("-train_file", "--train_file", help="Train File", required=False, default="../../data/QR/train_random.txt")
+        parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../../data/QR/test.txt")
+        parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../../data/QR/dev.txt")
 
         parser.add_argument("-test_file_for_android", "--test_file_for_android", help="Test File _for_android", required=False, default="../../data/Android/test")
         parser.add_argument("-dev_file_for_android", "--dev_file_for_android", help="Dev File _for_android", required=False, default="../../data/Android/dev")
 
-        parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../log")
-        parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../models")
+        parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../../log")
+        parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../../models")
         # TODO(demi): change this load_model after trainig a new model with glove
-        parser.add_argument("-load_model", "--load_model", help="Model to load from", required=False, default="../../models/?")
+        parser.add_argument("-load_model", "--load_model", help="Model to load from", required=False, default="../../models/1204-code-CNN-2017-12-5-1-7")
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
 

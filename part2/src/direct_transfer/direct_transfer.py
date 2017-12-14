@@ -20,13 +20,13 @@ from meter import AUCMeter
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(model, data_loader, i2q):
-	model.eval()
+    model.eval()
 
-	meter = AUCMeter()
-	for batch_idx, (q1_ids, q2_ids, labels) in tqdm(enumerate(data_loader), desc="Evaluate"):
-		batch_size = q1_ids.size(0)
+    meter = AUCMeter()
+    for batch_idx, (q1_ids, q2_ids, labels) in tqdm(enumerate(data_loader), desc="Evaluate"):
+        batch_size = q1_ids.size(0)
 
-		# Q1
+        # Q1
         q1_title = torch.zeros((batch_size, config.args.max_title_len)).long()
         q1_body = torch.zeros((batch_size, config.args.max_body_len)).long()
         q1_title_len = torch.zeros((batch_size)).long()
@@ -43,9 +43,9 @@ def evaluate_for_android(model, data_loader, i2q):
         q1_body_len = autograd.Variable(q1_body_len)
         if config.use_cuda:
             q1_title, q1_title_len, q1_body, q1_body_len = q1_title.cuda(), q1_title_len.cuda(), q1_body.cuda(), q1_body_len.cuda()
-		q1_emb = 0.5 * (model(q1_title, q1_title_len)+ model(q1_body, q1_body_len))
+        q1_emb = 0.5 * (model(q1_title, q1_title_len)+ model(q1_body, q1_body_len))
 
-		# Q2
+        # Q2
         q2_title = torch.zeros((batch_size, config.args.max_title_len)).long()
         q2_body = torch.zeros((batch_size, config.args.max_body_len)).long()
         q2_title_len = torch.zeros((batch_size)).long()
@@ -62,15 +62,15 @@ def evaluate_for_android(model, data_loader, i2q):
         q2_body_len = autograd.Variable(q2_body_len)
         if config.use_cuda:
             q2_title, q2_title_len, q2_body, q2_body_len = q2_title.cuda(), q2_title_len.cuda(), q2_body.cuda(), q2_body_len.cuda()
-		q2_emb = 0.5 * (model(q2_title, q2_title_len)+ model(q2_body, q2_body_len))
+        q2_emb = 0.5 * (model(q2_title, q2_title_len)+ model(q2_body, q2_body_len))
 
-		# q1_emb, q2_emb: (batch_size, final_dim)
-		scores = nn.CosineSimilarity()(q1_emb, q2_emb).view(-1)
-		print "labels.size()=", labels.size(), " scores.data.size=", scores.data.size()
-		meter.add(scores.data, labels)
+        # q1_emb, q2_emb: (batch_size, final_dim)
+        scores = nn.CosineSimilarity()(q1_emb, q2_emb).view(-1)
+        print "labels.size()=", labels.size(), " scores.data.size=", scores.data.size()
+        meter.add(scores.data, labels)
 
-	auc = meter.value(0.05)
-	return auc 
+    auc = meter.value(0.05)
+    return auc 
 
 if __name__ == "__main__":
     config = Config()
