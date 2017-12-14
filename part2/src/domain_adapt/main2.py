@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
     src_train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, src_i2q, is_train=True)
     src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
-    tgt_train_data = utils.QuestionList(config.args.question_file)
+    tgt_train_data = utils.QuestionList(config.args.question_file_for_android)
     tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.batch_size, **config.kwargs)
     config.log.info("=> Building Dataset: Finish Train")
 
