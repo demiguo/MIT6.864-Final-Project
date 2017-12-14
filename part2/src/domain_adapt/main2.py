@@ -324,7 +324,7 @@ if __name__ == "__main__":
             best_dev_auc = dev_auc
             best_test_auc = test_auc
             config.log.info("=> Update Best Epoch to %d, based on Android Dev Score" % best_epoch)
-            config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "%s-epoch%d" % (config.args.model_file, epoch)))
+            config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "domain-adapt-2-%s-epoch%d" % (config.args.model_file, epoch)))
 
         def save_checkpoint():
             checkpoint = {"encoder":encoder.state_dict(), 
@@ -333,7 +333,7 @@ if __name__ == "__main__":
                           "optimizer2":optimizer2.state_dict(),
                           "auc": "Dev AUC %.3lf || Test AUC %.3lf" % (dev_auc, test_auc),
                           "args":config.args}
-            checkpoint_file = "%s-epoch%d" % (config.args.model_file, epoch)
+            checkpoint_file = "domain-adapt-2-%s-epoch%d" % (config.args.model_file, epoch)
             config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))
             torch.save(checkpoint, checkpoint_file)
         save_checkpoint()
