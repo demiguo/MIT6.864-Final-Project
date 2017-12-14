@@ -44,6 +44,7 @@ class Config:
 
         parser.add_argument("-batch_size", "--batch_size", type=int, help="Batch Size", required=False, default=128)
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=2000)
+        parser.add_argument("-init_lr", "--init_lr", type=float, help="Initial Learning Rate", required=False, default=0.001)
 
         parser.add_argument("-embedding_dim", "--embedding_dim", type=int, help="Embedding Dimension", required=False, default=200)
         parser.add_argument("-delta_constant", "--delta_constant", type=float, help="Delta Constant", required=False, default=1.0)
