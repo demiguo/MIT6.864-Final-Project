@@ -40,7 +40,7 @@ class Config:
         parser.add_argument("-log_dir", "--log_dir", help="Log Directory", required=False, default="../../log")
         parser.add_argument("-model_dir", "--model_dir", help="Model Directory", required=False, default="../../models")
         # TODO(demi): change this load_model after trainig a new model with glove
-        parser.add_argument("-load_model", "--load_model", help="Model to load from", required=False, default="../../models/1204-code-CNN-2017-12-5-1-7")
+        parser.add_argument("-load_model", "--load_model", help="Model to load from", required=False, default="../../models/1204-code-CNN-2017-12-14-17-12")
         now = datetime.datetime.now()
         parser.add_argument('-model_suffix', '--model_suffix', help="Additional Model Information", required=False, default="%s-%s-%s-%s-%s" % (now.year, now.month, now.day, now.hour, now.minute))
 
