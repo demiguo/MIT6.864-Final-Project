@@ -448,7 +448,7 @@ if __name__ == "__main__":
                               "dev_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (dev_MAP, dev_MRR, dev_P1, dev_P5),
                               "test_eval":"MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (test_MAP, test_MRR, test_P1, test_P5),
                               "args":config.args}
-                checkpoint_file = "%s-epcoh%d" % (config.args.model_file, epoch)
+                checkpoint_file = "%s-epoch%d" % (config.args.model_file, epoch)
                 config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))
                 torch.save(checkpoint, checkpoint_file)
             
