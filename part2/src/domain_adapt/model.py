@@ -40,7 +40,8 @@ class myFNN(torch.nn.Module):
         return self.MLP(input)
 
     def loss(self, input, target):
-        print "to be implemented" 
+        output = self(input)
+        return torch.nn.CrossEntropyLoss()(output, target)
 
 
 class myMLP(torch.nn.Module):

@@ -109,21 +109,21 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
                 candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
         """ Retrieve Question Embeddings """
 
-        q_emb = 0.5 * (model(q_title, q_title_len)+ model(q_body, q_body_len))
+        q_emb = 0.5 * (encoder(q_title, q_title_len)+ encoder(q_body, q_body_len))
         assert q_emb.size() == (batch_size, config.args.final_dim)
 
         similar_title = similar_title.contiguous().view(batch_size * num_similar_q, config.args.max_title_len)
         similar_body = similar_body.contiguous().view(batch_size * num_similar_q, config.args.max_body_len)
         similar_title_len = similar_title_len.contiguous().view(batch_size * num_similar_q)
         similar_body_len = similar_body_len.contiguous().view(batch_size * num_similar_q)
-        similar_emb = 0.5 * (model(similar_title, similar_title_len) + model(similar_body, similar_body_len))
+        similar_emb = 0.5 * (encoder(similar_title, similar_title_len) + encoder(similar_body, similar_body_len))
         similar_emb = similar_emb.contiguous().view(batch_size, num_similar_q, config.args.final_dim)
 
         candidate_title = candidate_title.contiguous().view(batch_size * num_candidate_q, config.args.max_title_len)
         candidate_body = candidate_body.contiguous().view(batch_size * num_candidate_q, config.args.max_body_len)
         candidate_title_len = candidate_title_len.contiguous().view(batch_size * num_candidate_q)
         candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
-        candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
+        candidate_emb = 0.5 * (encoder(candidate_title, candidate_title_len) + encoder(candidate_body, candidate_body_len))
         candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
        
         d = config.args.final_dim
@@ -182,7 +182,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         q1_body_len = autograd.Variable(q1_body_len)
         if config.use_cuda:
             q1_title, q1_title_len, q1_body, q1_body_len = q1_title.cuda(), q1_title_len.cuda(), q1_body.cuda(), q1_body_len.cuda()
-        q1_emb = 0.5 * (model(q1_title, q1_title_len)+ model(q1_body, q1_body_len))
+        q1_emb = 0.5 * (encoder(q1_title, q1_title_len)+ encoder(q1_body, q1_body_len))
         assert q1_emb.size() == (batch_size2, config.args.final_dim)
         tgt_emb = q1_emb
         tgt_target = torch.autograd.Variable(torch.ones((batch_size2)).long())
