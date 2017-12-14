@@ -349,9 +349,9 @@ if __name__ == "__main__":
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     
     dev_data_for_android = utils.AndroidDataset(config, config.args.dev_file_for_android, w2i, vocab_size)
-    dev_loader_for_android = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    dev_loader_for_android = torch.utils.data.DataLoader(dev_data_for_android, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     test_data_for_android = utils.AndroidDataset(config, config.args.test_file_for_android, w2i, vocab_size)
-    test_loader_for_android = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    test_loader_for_android = torch.utils.data.DataLoader(test_data_for_android, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     config.log.info("=> Building Dataset: Finish All")
 
     if config.args.model_type == "CNN":
