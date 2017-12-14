@@ -25,6 +25,8 @@ class Config:
         parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/QR/text_tokenized.txt")
         parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
+        parser.add_argument("-train_file", "--train_file", help="Train File", required=False, default="../../data/QR/train_random.txt")
+
         parser.add_argument("-test_file", "--test_file", help="Test File", required=False, default="../../data/QR/test.txt")
         parser.add_argument("-dev_file", "--dev_file", help="Dev File", required=False, default="../../data/QR/dev.txt")
 
