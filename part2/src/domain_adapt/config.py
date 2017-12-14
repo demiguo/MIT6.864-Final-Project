@@ -21,6 +21,7 @@ class Config:
 
         parser.add_argument("-original_wordvec", "--original_wordvec", help="Raw Word Vectors File", required=False, default="../../data/vector/vectors_pruned.200.txt")
         parser.add_argument("-pretrained_wordvec", "--pretrained_wordvec", help="Word Vectors Only File", required=False, default="../../data/vector/vectors_only.txt")
+        parser.add_argument("-pretrained_vocab", "--pretrained_vocab", help="Vocab Only File", required=False, default="../../data/vector/glove.vocab")
         parser.add_argument("-question_file", "--question_file", help="Question File", required=False, default="../../data/QR/text_tokenized.txt")
         parser.add_argument("-question_file_for_android", "--question_file_for_android", help="Question File", required=False, default="../../data/Android/corpus.tsv")
 
@@ -71,6 +72,8 @@ class Config:
         	self.args.final_dim = 240
         if self.args.use_glove:
             self.args.embedding_dim = 300
+            self.args.pretrained_wordvec = "../../data/vector/glove.vectors"
+            self.args.pretrained_vocab = "../../data/vector/glove.vocab"
         self.args.discriminator_hidden_dim = 128
         self.args.model_file = "%s/1204-code-%s-%s" % (self.args.model_dir, self.args.model_type, self.args.model_suffix)
         self.args.log_file="%s/1204-code-%s-%s.log" % (self.args.log_dir, self.args.model_type, self.args.model_suffix)
