@@ -17,7 +17,7 @@ from model import myCNN, myLSTM, myMLP, myFNN
 from meter import AUCMeter 
 
 """ Train: LOSS1 (max margin) - \lambda LOSS2 (discriminator loss) """
-def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loader, tgt_data_loader, src_i2q, tgt_i2q):
+def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loader, tgt_data_loader, src_i2q, tgt_i2q, delta_lr):
     encoder.train()
     discriminator.train()
     avg_loss = 0
@@ -72,7 +72,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         similar_body_len = torch.zeros((batch_size, num_similar_q)).long()
         for i in range(batch_size):
             l = similar_num[i]
-            similar_ids = np.random.choice(l, num_similar_q, replace=False)
+            similar_ids = np.random.choice(l, num_similar_q, replace=True)
             for j in range(num_similar_q):
                 idx = similar_ids[j]
                 t, b, t_len, b_len = src_i2q[similar_q[i][idx]]
@@ -159,6 +159,11 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         src_emb = torch.cat((emb1, emb2, emb3), 0)
         src_num = batch_size + batch_size * num_similar_q + batch_size * num_candidate_q
+        # random sample questions from source
+        src_emb_index = np.random.choice(src_num, tgt_batch.size(0), replace=True)
+        src_emb = src_emb[src_emb_index]
+        src_num = tgt_batch.size(0)
+        assert src_emb.size(0) == src_num
         src_target = torch.autograd.Variable(torch.zeros((src_num)).long())  # domain 0
         if config.use_cuda:
             src_target = src_target.cuda()
@@ -194,24 +199,26 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         tmp_loss, acc2 = discriminator.loss(tgt_emb, tgt_target, acc=True)
         loss2 += tmp_loss
 
-        avg_acc = acc1 * src_num + acc2 * batch_size2
+        avg_acc += acc1 * src_num + acc2 * batch_size2
         acc_total += src_num + batch_size2
 
-        if batch_idx  % config.args.log_step == 0:
-            embed()
+        #if batch_idx  % config.args.log_step == 0:
+        #    embed()
         # gradient
         optimizer1.zero_grad()
         optimizer2.zero_grad()
-        loss = loss1 - config.args.loss_delta * loss2
+        loss = loss1 - delta_lr * loss2
         avg_loss += loss.data[0]
         total += 1
         loss.backward()
+
+        torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
         optimizer1.step()
         optimizer2.step()
 
     avg_loss /= total   # TODO(demi): verify such average is a ok average
     avg_acc /= acc_total
-    return encoder, discriminator, optimizer1, optimizer1, avg_loss, avg_acc
+    return encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(model, data_loader, i2q):
@@ -435,7 +442,7 @@ if __name__ == "__main__":
     src_train_data = utils.QRDataset(config, config.args.train_file, w2i, vocab_size, src_i2q, is_train=True)
     src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.src_batch_size, shuffle=True, **config.kwargs)
     tgt_train_data = utils.QuestionList(config.args.question_file_for_android)
-    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.tgt_batch_size, **config.kwargs)
+    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.tgt_batch_size, shuffle=True, **config.kwargs)
     config.log.info("=> Building Dataset: Finish Train")
 
     
@@ -473,15 +480,17 @@ if __name__ == "__main__":
     best_dev_auc = -1
     best_test_auc = -1
 
+    delta_lr = config.args.loss_delta
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
-        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
-
+        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = \
+                train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q, delta_lr)
         dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, src_dev_loader, src_i2q)
         test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, src_test_loader, src_i2q)
 
         dev_auc = evaluate_for_android(encoder, dev_loader, tgt_i2q)
         test_auc = evaluate_for_android(encoder, test_loader, tgt_i2q)
 
+        delta_lr = delta_lr * config.args.loss_delta_dec_rate
         config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
         config.log.info("EPOCH[%d] ANDROID TEST: AUC %.3lf" % (epoch, test_auc))

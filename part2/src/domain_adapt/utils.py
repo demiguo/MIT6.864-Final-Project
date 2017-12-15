@@ -15,12 +15,12 @@ from IPython import embed
 #from sets import Set
 
 NUM_SIMILAR_Q = 20
-NUM_CANDIDATE_Q = 20                     
+NUM_CANDIDATE_Q = 20 
 
 """ Initialize model with pre-trained weights """
 def init_model(model, weight_path):
     assert os.path.exists(weight_path), 'Pre-trained weight {} does not exist!'.format(weight_path)
-    model.load_state_dict(torch.load(weight_path)["model"])
+    model.load_state_dict(torch.load(weight_path)["encoder"])
     model.restored = True
 
     return model

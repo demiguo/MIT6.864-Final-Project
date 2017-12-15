@@ -1,0 +1,56 @@
+12/15/2017 02:02:12 log to ../../log/1204-code-lstm-2017-12-15-14-2.log
+12/15/2017 02:02:12 use_cuda=1
+12/15/2017 02:02:12 => Finish Loading Configuration
+12/15/2017 02:02:12 => Finish Word Processing
+12/15/2017 02:02:12 # of questions: 167765
+12/15/2017 02:02:22 # of questions: 42970
+12/15/2017 02:02:25 => Finish Retrieving Questions
+12/15/2017 02:02:27 => Building Dataset: Finish Train
+12/15/2017 02:02:27 => Building Dataset: Finish All
+12/15/2017 02:02:27 => Running LSTM Model
+12/15/2017 02:02:53 log to ../../log/1204-code-lstm-2017-12-15-14-2.log
+12/15/2017 02:02:53 use_cuda=1
+12/15/2017 02:02:53 => Finish Loading Configuration
+12/15/2017 02:02:53 => Finish Word Processing
+12/15/2017 02:02:53 # of questions: 167765
+12/15/2017 02:03:03 # of questions: 42970
+12/15/2017 02:03:05 => Finish Retrieving Questions
+12/15/2017 02:03:07 => Building Dataset: Finish Train
+12/15/2017 02:03:07 => Building Dataset: Finish All
+12/15/2017 02:03:07 => Running LSTM Model
+12/15/2017 02:06:21 EPOCH[0] Train Loss 0.009 || Discriminator Avg ACC 0.833
+12/15/2017 02:06:21 EPOCH[0] ANDROID DEV: AUC 0.681
+12/15/2017 02:06:21 EPOCH[0] ANDROID TEST: AUC 0.650
+12/15/2017 02:06:21 EPOCH[0] DEV: MAP 0.584 MRR 0.707 P@1 0.582 P@5 0.475
+12/15/2017 02:06:21 EPOCH[0] TEST: MAP 0.591 MRR 0.716 P@1 0.581 P@5 0.451
+12/15/2017 02:06:21 => Update Best Epoch to 0, based on Android Dev Score
+12/15/2017 02:06:21 => Update Model: Dev AUC 0.681 || Test AUC 0.650 || Saved at ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch0 
+12/15/2017 02:06:21 => saving checkpoint @ epoch 0 to ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch0
+12/15/2017 02:08:02 EPOCH[0] Train Loss 0.011 || Discriminator Avg ACC 0.901
+12/15/2017 02:08:02 EPOCH[0] ANDROID DEV: AUC 0.536
+12/15/2017 02:08:02 EPOCH[0] ANDROID TEST: AUC 0.526
+12/15/2017 02:08:02 EPOCH[0] DEV: MAP 0.564 MRR 0.696 P@1 0.571 P@5 0.448
+12/15/2017 02:08:02 EPOCH[0] TEST: MAP 0.568 MRR 0.717 P@1 0.586 P@5 0.430
+12/15/2017 02:08:02 => Update Best Epoch to 0, based on Android Dev Score
+12/15/2017 02:08:02 => Update Model: Dev AUC 0.536 || Test AUC 0.526 || Saved at ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch0 
+12/15/2017 02:08:02 => saving checkpoint @ epoch 0 to ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch0
+12/15/2017 02:09:32 EPOCH[1] Train Loss 0.000 || Discriminator Avg ACC 0.274
+12/15/2017 02:09:32 EPOCH[1] ANDROID DEV: AUC 0.084
+12/15/2017 02:09:32 EPOCH[1] ANDROID TEST: AUC 0.072
+12/15/2017 02:09:32 EPOCH[1] DEV: MAP 0.591 MRR 0.702 P@1 0.566 P@5 0.483
+12/15/2017 02:09:32 EPOCH[1] TEST: MAP 0.606 MRR 0.736 P@1 0.618 P@5 0.456
+12/15/2017 02:09:32 => saving checkpoint @ epoch 1 to ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch1
+12/15/2017 02:12:15 EPOCH[1] Train Loss 0.008 || Discriminator Avg ACC 0.887
+12/15/2017 02:12:15 EPOCH[1] ANDROID DEV: AUC 0.602
+12/15/2017 02:12:15 EPOCH[1] ANDROID TEST: AUC 0.600
+12/15/2017 02:12:15 EPOCH[1] DEV: MAP 0.572 MRR 0.695 P@1 0.566 P@5 0.462
+12/15/2017 02:12:15 EPOCH[1] TEST: MAP 0.584 MRR 0.723 P@1 0.602 P@5 0.441
+12/15/2017 02:12:15 => Update Best Epoch to 1, based on Android Dev Score
+12/15/2017 02:12:15 => Update Model: Dev AUC 0.602 || Test AUC 0.600 || Saved at ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch1 
+12/15/2017 02:12:15 => saving checkpoint @ epoch 1 to ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch1
+12/15/2017 02:16:25 EPOCH[2] Train Loss 0.007 || Discriminator Avg ACC 0.610
+12/15/2017 02:16:25 EPOCH[2] ANDROID DEV: AUC 0.589
+12/15/2017 02:16:25 EPOCH[2] ANDROID TEST: AUC 0.558
+12/15/2017 02:16:25 EPOCH[2] DEV: MAP 0.576 MRR 0.691 P@1 0.550 P@5 0.466
+12/15/2017 02:16:25 EPOCH[2] TEST: MAP 0.583 MRR 0.718 P@1 0.591 P@5 0.439
+12/15/2017 02:16:25 => saving checkpoint @ epoch 2 to ../../models/1204-code-lstm-2017-12-15-14-2-domain-adapt-2-epoch2

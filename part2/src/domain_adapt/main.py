@@ -187,13 +187,13 @@ if __name__ == "__main__":
     test_data = utils.AndroidDataset(config, config.args.test_file_for_android, w2i, vocab_size)
     config.log.info("=> Building Dataset: Finish Test")
     
-    src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
-    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.batch_size, shuffle=True, **config.kwargs)
-    src_dev_loader = torch.utils.data.DataLoader(src_dev_data, batch_size=256, **config.kwargs)  # TODO(demi): make test/dev batch size super big
-    src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=256, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    src_train_loader = torch.utils.data.DataLoader(src_train_data, batch_size=config.args.tgt_batch_size, shuffle=True, **config.kwargs)
+    tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.tgt_batch_size, shuffle=True, **config.kwargs)
+    src_dev_loader = torch.utils.data.DataLoader(src_dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
 
-    dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=256, **config.kwargs)  # TODO(demi): make test/dev batch size super big
-    test_loader = torch.utils.data.DataLoader(test_data, batch_size=256, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    dev_loader = torch.utils.data.DataLoader(dev_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=1024, **config.kwargs)  # TODO(demi): make test/dev batch size super big
     config.log.info("=> Building Dataset: Finish All")
 
     if config.args.model_type == "CNN":
@@ -231,15 +231,15 @@ if __name__ == "__main__":
     # The target encoder will be trained using encoder_optimizer, while the domain discriminator will be trained using 
     # discriminator_optimizer.
     
-    encoder_optimizer = optim.Adam(tgt_encoder.get_train_parameters(), lr=1e-4, weight_decay=1e-9)
-    discriminator_optimizer = optim.Adam(discriminator.get_train_parameters(), lr=-1e-4, weight_decay=1e-9)
+    encoder_optimizer = optim.Adam(tgt_encoder.get_train_parameters(), lr=1e-3, weight_decay=1e-8)
+    discriminator_optimizer = optim.Adam(discriminator.get_train_parameters(), lr=1e-3, weight_decay=1e-8)
 
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
             tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, avg_loss = train(config, \
                     src_encoder, tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, \
                     src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)
             
-            if (epoch + 1) % 10 == 0:
+            if (epoch + 1) % 5 == 0:
                 dev_AUC = evaluate_for_android(tgt_encoder, dev_loader, tgt_i2q, config)
                 test_AUC = evaluate_for_android(tgt_encoder, test_loader, tgt_i2q, config)
                 

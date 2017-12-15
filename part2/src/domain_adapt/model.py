@@ -23,9 +23,9 @@ class myFNN(torch.nn.Module):
         self.MLP = nn.Sequential(
             nn.Linear(self.input_dim, self.hidden_dim),
             nn.ReLU(),
-            #nn.Linear(self.hidden_dim, self.hidden_dim),
-            #nn.ReLU(),
-            nn.Linear(self.hidden_dim, 2),
+            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
+            nn.ReLU(),
+            nn.Linear(self.hidden_dim // 2, 2),
             nn.LogSoftmax(dim=1)
         ) 
 
@@ -145,7 +145,7 @@ class myLSTM(torch.nn.Module):
         if self.config.use_cuda:
             word_vec = word_vec.cuda()
         self.word_embeds.weight.data.copy_(word_vec)
-        self.word_embeds.weight.requires_grad = False
+        self.word_embeds.weight.requires_grad = True
 
     def init_hidden(self, batch_size):
         h = autograd.Variable(torch.randn(2, batch_size, self.final_dim // 2))
