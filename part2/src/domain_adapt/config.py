@@ -74,7 +74,6 @@ class Config:
         else:
             self.use_cuda = False
         self.kwargs = {'num_workers': 1, 'pin_memory': True} if self.use_cuda else {}
-        self.kwargs = {}
 
         np.random.seed(self.args.seed)
         random.seed(self.args.seed)

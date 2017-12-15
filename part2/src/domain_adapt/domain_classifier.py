@@ -198,7 +198,7 @@ if __name__ == "__main__":
     tgt_train_loader = torch.utils.data.DataLoader(tgt_train_data, batch_size=config.args.tgt_batch_size, shuffle=True, **config.kwargs)
     
     src_test_data = utils.QuestionList("../../data/domain_classifier/src.test")
-    src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=1024 **config.kwargs)
+    src_test_loader = torch.utils.data.DataLoader(src_test_data, batch_size=1024, **config.kwargs)
     tgt_test_data = utils.QuestionList("../../data/domain_classifier/tgt.test")
     tgt_test_loader = torch.utils.data.DataLoader(tgt_test_data, batch_size=1024, **config.kwargs)
 
