@@ -27,9 +27,9 @@ if __name__ == "__main__":
 	src_file = "../../data/QR/text_tokenized.txt"
 	tgt_file = "../../data/Android/corpus.tsv"
 	src_train = "../../data/domain_classifier/src.train"
-	src_test = "../../data/domain_classifier/src.train"
+	src_test = "../../data/domain_classifier/src.test"
 	tgt_train = "../../data/domain_classifier/tgt.train"
-	tgt_test = "../../data/domain_classifier/tgt.train"
+	tgt_test = "../../data/domain_classifier/tgt.test"
 
 	split_data(src_file, src_train, src_test)
 	print "==> Finish Splitting Source Domain Data"	

@@ -64,6 +64,7 @@ class Config:
         parser.add_argument("-use_glove", "--use_glove", type=bool, help="Use Glove", required=False, default=True)
         parser.add_argument("-cuda_device", "--cuda_device", type=int, help="Cuda Device", required=False, default=1)
         parser.add_argument("-log_step", "--log_step", type=int, help="#Steps Between Printing Logs", required=False, default=100)
+
         self.args = parser.parse_args()
 
         if torch.cuda.is_available() and self.args.cuda:
