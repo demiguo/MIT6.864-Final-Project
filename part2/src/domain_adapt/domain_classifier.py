@@ -161,7 +161,7 @@ def evaluate(config, encoder, discriminator, src_data_loader, tgt_data_loader, s
         tgt_emb = 0.5 * (encoder(tgt_title, tgt_title_len) + encoder(tgt_body, tgt_body_len))
 
         src_target = torch.autograd.Variable(torch.zeros((src_batch_size)).long())
-        tgt_target = torch.autograd.Variable(torch.zeros((tgt_batch_size)).long())
+        tgt_target = torch.autograd.Variable(torch.ones((tgt_batch_size)).long())
         if config.use_cuda:
             src_target = src_target.cuda()
             tgt_target = tgt_target.cuda()
@@ -222,7 +222,7 @@ if __name__ == "__main__":
         discriminator = discriminator.cuda()
 
     optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_src_lr, weight_decay=1e-8)
-    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=-config.args.init_tgt_lr, weight_decay=1e-8)
+    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_tgt_lr, weight_decay=1e-8)
 
 
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
