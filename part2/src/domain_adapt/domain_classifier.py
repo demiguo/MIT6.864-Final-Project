@@ -228,7 +228,7 @@ if __name__ == "__main__":
         
         test_acc = evaluate(config, encoder, discriminator, src_test_loader, tgt_test_loader, src_i2q, tgt_i2q)
         config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
-        config.log.info("EPOCH[%d] TEST: ACC" % (epoch,test_acc))
+        config.log.info("EPOCH[%d] TEST: ACC %.3lf" % (epoch,test_acc))
         
         def save_checkpoint():
             checkpoint = {"encoder":encoder.state_dict(), 
