@@ -214,7 +214,11 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         total += 1
         loss.backward()
 
-        torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
+        if config.args.mode == "debug":
+            encoder.output_grad()
+            discriminator.output_grad()
+
+        #torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
         optimizer1.step()
         optimizer2.step()
 
