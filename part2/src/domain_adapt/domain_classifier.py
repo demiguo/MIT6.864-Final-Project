@@ -17,7 +17,7 @@ from model import myCNN, myLSTM, myMLP, myFNN
 from meter import AUCMeter 
 
 """ Train: LOSS1 (max margin) - \lambda LOSS2 (discriminator loss) """
-def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loader, tgt_data_loader, src_i2q, tgt_i2q, delta_lr):
+def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loader, tgt_data_loader, src_i2q, tgt_i2q):
     encoder.train()
     discriminator.train()
     avg_loss = 0
@@ -82,8 +82,8 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         optimizer1.zero_grad()
         optimizer2.zero_grad()
-        src_loss, src_acc = discriminator.loss(src_emb, src_train_data, acc=True)
-        tgt_loss, tgt_acc = discriminator.loss(tgt_emb, tgt_train_data, acc=True)
+        src_loss, src_acc = discriminator.loss(src_emb, src_target, acc=True)
+        tgt_loss, tgt_acc = discriminator.loss(tgt_emb, tgt_target, acc=True)
         loss = src_loss + tgt_loss
         avg_loss += loss.data[0]
         total += 1
@@ -163,8 +163,8 @@ def evaluate(config, encoder, discriminator, src_data_loader, tgt_data_loader, s
             src_target = src_target.cuda()
             tgt_target = tgt_target.cuda()
 
-        src_loss, src_acc = discriminator.loss(src_emb, src_train_data, acc=True)
-        tgt_loss, tgt_acc = discriminator.loss(tgt_emb, tgt_train_data, acc=True)
+        src_loss, src_acc = discriminator.loss(src_emb, src_target, acc=True)
+        tgt_loss, tgt_acc = discriminator.loss(tgt_emb, tgt_target, acc=True)
         
         avg_acc += src_acc * src_batch_size + tgt_acc * tgt_batch_size
         acc_total += src_batch_size + tgt_batch_size
