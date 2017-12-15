@@ -22,6 +22,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
     discriminator.train()
     avg_loss = 0
     total = 0
+    avg_d_loss = 0
 
     acc_total = 0
     avg_acc = 0
@@ -209,6 +210,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer2.zero_grad()
         loss = loss1 - delta_lr * loss2
         avg_loss += loss.data[0]
+        avg_d_loss += loss2.data[0]
         total += 1
         loss.backward()
 
@@ -218,7 +220,8 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
     avg_loss /= total   # TODO(demi): verify such average is a ok average
     avg_acc /= acc_total
-    return encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc
+    avg_d_loss /= total
+    return encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_d_loss, avg_acc
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(model, data_loader, i2q):
@@ -482,7 +485,7 @@ if __name__ == "__main__":
 
     delta_lr = config.args.loss_delta
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
-        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = \
+        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_d_loss, avg_acc = \
                 train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q, delta_lr)
         dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, src_dev_loader, src_i2q)
         test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, src_test_loader, src_i2q)
@@ -491,7 +494,7 @@ if __name__ == "__main__":
         test_auc = evaluate_for_android(encoder, test_loader, tgt_i2q)
 
         delta_lr = delta_lr * config.args.loss_delta_dec_rate
-        config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
+        config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf Loss %.3lf" % (epoch, avg_loss, avg_acc, avg_d_loss))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
         config.log.info("EPOCH[%d] ANDROID TEST: AUC %.3lf" % (epoch, test_auc))
         config.log.info("EPOCH[%d] DEV: MAP %.3lf MRR %.3lf P@1 %.3lf P@5 %.3lf" % (epoch, dev_MAP, dev_MRR, dev_P1, dev_P5))
