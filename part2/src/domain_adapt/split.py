@@ -5,6 +5,7 @@ import os
 import sys
 import torch
 
+from tqdm import tqdm
 def split_data(data_file, train_file, test_file, ratio=0.8):
 	f = open(data_file)
 	lines = f.readlines()
