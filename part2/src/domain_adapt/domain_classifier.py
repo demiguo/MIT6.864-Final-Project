@@ -235,7 +235,7 @@ if __name__ == "__main__":
                           "discriminator":discriminator.state_dict(),
                           "optimizer1":optimizer1.state_dict(),
                           "optimizer2":optimizer2.state_dict(),
-                          "auc": "Dev AUC %.3lf || Test AUC %.3lf" % (dev_auc, test_auc),
+                          "auc": "test acc" % (test_acc),
                           "args":config.args}
             checkpoint_file = "%s-domain-classifier-epoch%d" % (config.args.model_file, epoch)
             config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))

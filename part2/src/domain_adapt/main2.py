@@ -480,8 +480,8 @@ if __name__ == "__main__":
         encoder = encoder.cuda()
         discriminator = discriminator.cuda()
 
-    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
-    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=-config.args.init_lr, weight_decay=1e-8)
+    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_src_lr, weight_decay=1e-8)
+    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=-config.args.init_tgt_lr, weight_decay=1e-8)
 
     best_epoch = -1
     best_dev_auc = -1

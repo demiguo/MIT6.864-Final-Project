@@ -15,13 +15,14 @@ def split_data(data_file, train_file, test_file, ratio=0.8):
 	test_lines = lines[split_at:]
 
 	def out(out_file, out_lines):
-		f = open(out_file, "w")
+		f2 = open(out_file, "w")
 		for line in tqdm(out_lines, desc="Writing"):
-			f.write(line)
-		f.close()
+			f2.write(line)
+		f2.close()
 
 	out(train_file, train_lines)
 	out(test_file, test_lines)
+	f.close()
 
 if __name__ == "__main__":
 	src_file = "../../data/QR/text_tokenized.txt"
