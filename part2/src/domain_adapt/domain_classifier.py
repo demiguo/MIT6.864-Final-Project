@@ -75,7 +75,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         tgt_emb = 0.5 * (encoder(tgt_title, tgt_title_len) + encoder(tgt_body, tgt_body_len))
 
         src_target = torch.autograd.Variable(torch.zeros((src_batch_size)).long())
-        tgt_target = torch.autograd.Variable(torch.zeros((tgt_batch_size)).long())
+        tgt_target = torch.autograd.Variable(torch.ones((tgt_batch_size)).long())
         if config.use_cuda:
             src_target = src_target.cuda()
             tgt_target = tgt_target.cuda()
@@ -91,6 +91,9 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
         
+        #if batch_idx % 10 == 0:
+        
+            #embed()
         optimizer1.step()
         optimizer2.step()
 
@@ -235,7 +238,7 @@ if __name__ == "__main__":
                           "discriminator":discriminator.state_dict(),
                           "optimizer1":optimizer1.state_dict(),
                           "optimizer2":optimizer2.state_dict(),
-                          "auc": "test acc" % (test_acc),
+                          "auc": "test acc %.3lf" % (test_acc),
                           "args":config.args}
             checkpoint_file = "%s-domain-classifier-epoch%d" % (config.args.model_file, epoch)
             config.log.info("=> saving checkpoint @ epoch %d to %s" % (epoch, checkpoint_file))

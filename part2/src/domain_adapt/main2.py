@@ -180,6 +180,11 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         q1_title_len = torch.zeros((batch_size2)).long()
         q1_body_len = torch.zeros((batch_size2)).long()
         for i in range(batch_size2):
+            if not q1_ids[i] in tgt_i2q:
+                print "i=", i
+                print "q1_ids[i]=", q1_ids[i]
+                print "tgt_i2qlen=", len(tgt_i2q)
+                embed()
             t, b, t_len, b_len = tgt_i2q[q1_ids[i]]
             q1_title[i] = torch.LongTensor(t)
             q1_body[i] = torch.LongTensor(b)
@@ -214,7 +219,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         total += 1
         loss.backward()
 
-        if config.args.mode == "debug":
+        if config.args.mode == "debug_norm":
             encoder.output_grad()
             discriminator.output_grad()
 

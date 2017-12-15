@@ -171,10 +171,9 @@ class myLSTM(torch.nn.Module):
 
     def output_grad(self):
         print "$$$$$$$$$$$ LSTM gradients (start) $$$$$$$$$$$$"
-        print self.lstm.weight_ih_l[0].grad
-        print self.lstm.weight_hh_l[0].grad
-        print self.bias_ih_l[0].grad
-        print self.bias_hh_l[0].grad
+        print self.lstm.weight_ih_l0.grad
+        print self.lstm.weight_hh_l0.grad
+        print "all weights=", self.lstm._all_weights
         print "$$$$$$$$$$$ LSTM gradients (end) $$$$$$$$$$$$"
     """ Sort text data in nonincreasing order by length, and return new text, text_len """
     def preprocess(self, text, text_len):
