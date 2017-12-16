@@ -223,7 +223,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer2.zero_grad()
         loss2 = loss2 * delta_lr
         loss2.backward()
-        if batch_idx % 10 == 0 and config.args.mode == "debug_vanish":
+        if (batch_idx + 1) % config.args.log_step == 0 and config.args.mode == "debug_vanish":
             discriminator.output_grad()
         torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
         optimizer2.step() 
@@ -235,7 +235,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         avg_losses[0] += loss1
         avg_losses[1] += loss2
         avg_losses[2] += loss3
-        if (batch_idx + 1) % 20 == 0:
+        if (batch_idx + 1) % config.args.log_step == 0:
             print('----> acc: {}'.format(avg_acc / acc_total))
             print('----> loss1:{} loss2:{} loss3:{}'.format(avg_losses[0]/total,avg_losses[1]/total,avg_losses[2]/total))
         #loss.backward()
