@@ -209,6 +209,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         if (batch_idx + 1) % 20 == 0:
             print('----> acc: {}'.format(avg_acc / acc_total))
+            print('----> loss1:{} loss2:{} loss3:{}'.format(loss1,loss2,loss3))
 
         #if batch_idx  % config.args.log_step == 0:
         #    embed()
