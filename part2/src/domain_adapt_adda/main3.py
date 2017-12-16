@@ -22,7 +22,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
     discriminator.train()
     avg_loss = 0
     total = 0
-
+    avg_losses = [0,0,0]
     acc_total = 0
     avg_acc = 0
 
@@ -210,7 +210,9 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         avg_acc += acc1 * src_num + acc2 * batch_size2
         acc_total += src_num + batch_size2
 
-
+        avg_losses[0] += loss1
+        avg_losses[1] += loss2
+        avg_losses[2] += loss3
         #if batch_idx  % config.args.log_step == 0:
         #    embed()
         # gradient
@@ -234,6 +236,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
 
         if (batch_idx + 1) % config.args.log_step == 0:
             print('----> acc: {}'.format(avg_acc / acc_total))
+            print('----> loss1:{} loss2:{} loss3:{}'.format(avg_losses[0]/total, avg_losses[1]/total, avg_losses[2]))
         #loss.backward()
     
         #optimizer1.step()
@@ -496,8 +499,8 @@ if __name__ == "__main__":
         encoder = encoder.cuda()
         discriminator = discriminator.cuda()
 
-    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
-    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
+    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_e_lr, weight_decay=1e-8)
+    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_d_lr, weight_decay=1e-8)
 
     best_epoch = -1
     best_dev_auc = -1
