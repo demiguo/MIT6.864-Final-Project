@@ -13,7 +13,7 @@ from IPython import embed
 
 import utils
 from config import Config
-from model import myCNN, myLSTM, myMLP, myFNN
+from model import myCNN, myLSTM, myMLP, myFNN, myMAP
 from meter import AUCMeter 
 
 """ Train: LOSS1 (max margin) - \lambda LOSS2 (discriminator loss) """
