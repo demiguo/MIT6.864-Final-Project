@@ -26,6 +26,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
     acc_total = 0
     avg_acc = 0
 
+    avg_losses = [0,0,0]
     combined_data_loader = zip(src_data_loader, tgt_data_loader)
     max_iteration_per_epoch = min(len(src_data_loader), len(tgt_data_loader))
 
@@ -207,9 +208,6 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         avg_acc += acc1 * src_num + acc2 * batch_size2
         acc_total += src_num + batch_size2
 
-        if (batch_idx + 1) % 20 == 0:
-            print('----> acc: {}'.format(avg_acc / acc_total))
-            print('----> loss1:{} loss2:{} loss3:{}'.format(loss1,loss2,loss3))
 
         #if batch_idx  % config.args.log_step == 0:
         #    embed()
@@ -228,11 +226,18 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         if batch_idx % 10 == 0 and config.args.mode == "debug_vanish":
             discriminator.output_grad()
         torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
-        optimizer2.step()
+        optimizer2.step() 
 
         loss = loss1 + delta_lr * loss2
         avg_loss += loss.data[0]
         total += 1
+
+        avg_losses[0] += loss1
+        avg_losses[1] += loss2
+        avg_losses[2] += loss3
+        if (batch_idx + 1) % 20 == 0:
+            print('----> acc: {}'.format(avg_acc / acc_total))
+            print('----> loss1:{} loss2:{} loss3:{}'.format(avg_losses[0]/total,avg_losses[1]/total,avg_losses[2]/total))
         #loss.backward()
     
         #optimizer1.step()
@@ -495,8 +500,8 @@ if __name__ == "__main__":
         encoder = encoder.cuda()
         discriminator = discriminator.cuda()
 
-    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
-    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
+    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_e_lr, weight_decay=1e-8)
+    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_d_lr, weight_decay=1e-8)
 
     best_epoch = -1
     best_dev_auc = -1

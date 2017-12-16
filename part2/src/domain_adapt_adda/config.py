@@ -47,7 +47,8 @@ class Config:
         parser.add_argument("-tgt_batch_size", "--tgt_batch_size", type=int, help="Target Batch Size", required=False, default=96)
 
         parser.add_argument("-epochs", "--epochs", type=int, help="Epochs", required=False, default=2000)
-        parser.add_argument("-init_lr", "--init_lr", type=float, help="Initial Learning Rate", required=False, default=0.001)
+        parser.add_argument("-init_e_lr", "--init_e_lr", type=float, help="Initial Learning Rate of Encoder", required=False, default=0.001)
+        parser.add_argument("-init_d_lr", "--init_d_lr", type=float, help="Initial Learning Rate of Discriminator", required=False, default=0.001)
 
         parser.add_argument("-final_dim", "--final_dim", type=int, help="Final Dimension", required=False, default=100)
         parser.add_argument("-discriminator_hidden_dim", "--discriminator_hidden_dim", type=int, help="discriminator Hidden Dimension", required=False, default=150)
