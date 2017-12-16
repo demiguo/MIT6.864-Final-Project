@@ -218,16 +218,20 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer2.zero_grad()
         loss_1_3 = loss1 + delta_lr * loss3
         loss_1_3.backward(retain_graph=True)
+
         torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
+        if (batch_idx + 1) % config.args.log_step == 0:
+            encoder.output_grad()
         optimizer1.step()
 
         optimizer1.zero_grad()
         optimizer2.zero_grad()
         loss2 = loss2 * delta_lr
         loss2.backward()
+
+        torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
         if (batch_idx + 1) % config.args.log_step == 0:
             discriminator.output_grad()
-        torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
         optimizer2.step() 
 
         loss = loss1 + delta_lr * loss2
