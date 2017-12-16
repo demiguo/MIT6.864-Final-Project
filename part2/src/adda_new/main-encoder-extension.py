@@ -381,7 +381,7 @@ def evaluate(model, data_loader, i2q):
         candidate_body = candidate_body.contiguous().view(batch_size * num_candidate_q, config.args.max_body_len)
         candidate_title_len = candidate_title_len.contiguous().view(batch_size * num_candidate_q)
         candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
-        candidate_emb = 0.5 * (model(candidate_title, candidate_title_len)) + model(candidate_body, candidate_body_len))
+        candidate_emb = 0.5 * (model(candidate_title, candidate_title_len) + model(candidate_body, candidate_body_len))
         candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
 
 
