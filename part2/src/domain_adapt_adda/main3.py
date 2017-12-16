@@ -224,6 +224,8 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         optimizer2.zero_grad()
         loss2 = loss2 * delta_lr
         loss2.backward()
+        if batch_idx % 10 == 0 and config.args.mode == "debug_vanish":
+            discriminator.output_grad()
         torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
         optimizer2.step()
 
