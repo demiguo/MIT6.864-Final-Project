@@ -17,9 +17,12 @@ from model import myCNN, myLSTM, myMLP, myFNN
 from meter import AUCMeter 
 
 """ Train: LOSS1 (max margin) - \lambda LOSS2 (discriminator loss) """
-def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loader, tgt_data_loader, src_i2q, tgt_i2q, delta_lr):
-    encoder.train()
+def train(config, src_encoder, tgt_encoder, discriminator, optimizer1, optimizer2, optimizer3, \
+        src_data_loader, tgt_data_loader, src_i2q, tgt_i2q, delta_lr):
+    src_encoder.train()
+    tgt_encoder.train()
     discriminator.train()
+    
     avg_loss = 0
     total = 0
 
@@ -112,21 +115,21 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
                 candidate_title.cuda(), candidate_title_len.cuda(), candidate_body.cuda(), candidate_body_len.cuda()
         """ Retrieve Question Embeddings """
 
-        q_emb = 0.5 * (encoder(q_title, q_title_len)+ encoder(q_body, q_body_len))
+        q_emb = 0.5 * (src_encoder(q_title, q_title_len) + src_encoder(q_body, q_body_len))
         assert q_emb.size() == (batch_size, config.args.final_dim)
 
         similar_title = similar_title.contiguous().view(batch_size * num_similar_q, config.args.max_title_len)
         similar_body = similar_body.contiguous().view(batch_size * num_similar_q, config.args.max_body_len)
         similar_title_len = similar_title_len.contiguous().view(batch_size * num_similar_q)
         similar_body_len = similar_body_len.contiguous().view(batch_size * num_similar_q)
-        similar_emb = 0.5 * (encoder(similar_title, similar_title_len) + encoder(similar_body, similar_body_len))
+        similar_emb = 0.5 * (src_encoder(similar_title, similar_title_len) + src_encoder(similar_body, similar_body_len))
         similar_emb = similar_emb.contiguous().view(batch_size, num_similar_q, config.args.final_dim)
 
         candidate_title = candidate_title.contiguous().view(batch_size * num_candidate_q, config.args.max_title_len)
         candidate_body = candidate_body.contiguous().view(batch_size * num_candidate_q, config.args.max_body_len)
         candidate_title_len = candidate_title_len.contiguous().view(batch_size * num_candidate_q)
         candidate_body_len = candidate_body_len.contiguous().view(batch_size * num_candidate_q)
-        candidate_emb = 0.5 * (encoder(candidate_title, candidate_title_len) + encoder(candidate_body, candidate_body_len))
+        candidate_emb = 0.5 * (src_encoder(candidate_title, candidate_title_len) + src_encoder(candidate_body, candidate_body_len))
         candidate_emb = candidate_emb.contiguous().view(batch_size, num_candidate_q, config.args.final_dim)
        
         d = config.args.final_dim
@@ -161,9 +164,6 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         src_num = batch_size + batch_size * num_similar_q + batch_size * num_candidate_q
         # random sample questions from source
         src_emb_index = np.random.choice(src_num, tgt_batch.size(0), replace=False)
-        src_emb_index = torch.from_numpy(src_emb_index).long()
-        if config.use_cuda:
-            src_emb_index = src_emb_index.cuda()
         src_emb = src_emb[src_emb_index]
         src_num = tgt_batch.size(0)
         assert src_emb.size(0) == src_num
@@ -193,7 +193,7 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         q1_body_len = autograd.Variable(q1_body_len)
         if config.use_cuda:
             q1_title, q1_title_len, q1_body, q1_body_len = q1_title.cuda(), q1_title_len.cuda(), q1_body.cuda(), q1_body_len.cuda()
-        q1_emb = 0.5 * (encoder(q1_title, q1_title_len)+ encoder(q1_body, q1_body_len))
+        q1_emb = 0.5 * (tgt_encoder(q1_title, q1_title_len)+ tgt_encoder(q1_body, q1_body_len))
         assert q1_emb.size() == (batch_size2, config.args.final_dim)
         tgt_emb = q1_emb
         tgt_target = torch.autograd.Variable(torch.ones((batch_size2)).long())
@@ -210,38 +210,39 @@ def train(config, encoder, discriminator, optimizer1, optimizer2, src_data_loade
         avg_acc += acc1 * src_num + acc2 * batch_size2
         acc_total += src_num + batch_size2
 
+        if (batch_idx + 1) % 20 == 0:
+            print('----> acc: {}'.format(avg_acc / acc_total))
 
         #if batch_idx  % config.args.log_step == 0:
         #    embed()
         # gradient
+
+        # Train src_encoder
         optimizer1.zero_grad()
         optimizer2.zero_grad()
-        loss_1_3 = loss1 + delta_lr * loss3
-        loss_1_3.backward(retain_graph=True)
-        torch.nn.utils.clip_grad_norm(encoder.get_train_parameters(), config.args.max_norm)
-        optimizer1.step()
-
-        optimizer1.zero_grad()
-        optimizer2.zero_grad()
-        loss2 = loss2 * delta_lr
-        loss2.backward()
-        torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
-        optimizer2.step() 
-
+        optimizer3.zero_grad()
         loss = loss1 + delta_lr * loss2
         avg_loss += loss.data[0]
         total += 1
 
-        if (batch_idx + 1) % config.args.log_step == 0:
-            print('----> acc: {}'.format(avg_acc / acc_total))
-        #loss.backward()
-    
-        #optimizer1.step()
-        #optimizer2.step()
+        loss.backward()
+        torch.nn.utils.clip_grad_norm(src_encoder.get_train_parameters(), config.args.max_norm)
+        torch.nn.utils.clip_grad_norm(discriminator.get_train_parameters(), config.args.max_norm)
+        optimizer1.step()
+        optimizer3.step()
+        
+        optimizer1.zero_grad()
+        optimizer2.zero_grad()
+        optimizer3.zero_grad()
+        tgt_encoder_loss = delta_lr * loss3
+        tgt_encoder_loss.backward()
+        torch.nn.utils.clip_grad_norm(tgt_encoder.get_train_parameters(), config.args.max_norm)
+        optimizer2.step()
+        
 
     avg_loss /= total   # TODO(demi): verify such average is a ok average
     avg_acc /= acc_total
-    return encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc
+    return src_encoder, tgt_encoder, discriminator, optimizer1, optimizer2, optimizer3, avg_loss, avg_acc
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(model, data_loader, i2q):
@@ -485,19 +486,22 @@ if __name__ == "__main__":
 
     if config.args.model_type == "CNN":
         config.log.info("=> Running CNN Model")
-        encoder = myCNN(config)
+        src_encoder = myCNN(config)
+        tgt_encoder = myCNN(config)
     else:
         config.log.info("=> Running LSTM Model")
-        encoder = myLSTM(config)
-
+        src_encoder = myLSTM(config)
+        tgt_encoder = myLSTM(config)
     discriminator = myFNN(config)
 
     if config.use_cuda:
-        encoder = encoder.cuda()
+        src_encoder = src_encoder.cuda()
+        tgt_encoder = tgt_encoder.cuda()
         discriminator = discriminator.cuda()
 
-    optimizer1 = optim.Adam(encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
-    optimizer2 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
+    optimizer1 = optim.Adam(src_encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
+    optimizer2 = optim.Adam(tgt_encoder.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
+    optimizer3 = optim.Adam(discriminator.get_train_parameters(), lr=config.args.init_lr, weight_decay=1e-8)
 
     best_epoch = -1
     best_dev_auc = -1
@@ -505,13 +509,14 @@ if __name__ == "__main__":
 
     delta_lr = config.args.loss_delta
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
-        encoder, discriminator, optimizer1, optimizer2, avg_loss, avg_acc = \
-                train(config, encoder, discriminator, optimizer1, optimizer2, src_train_loader, tgt_train_loader, src_i2q, tgt_i2q, delta_lr)
-        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(encoder, src_dev_loader, src_i2q)
-        test_MAP, test_MRR, test_P1, test_P5 = evaluate(encoder, src_test_loader, src_i2q)
+        src_encoder, tgt_encoder, discriminator, optimizer1, optimizer2, optimizer3, avg_loss, avg_acc = \
+                train(config, src_encoder, tgt_encoder, discriminator, optimizer1, optimizer2, optimizer3, \
+                src_train_loader, tgt_train_loader, src_i2q, tgt_i2q, delta_lr)
+        dev_MAP, dev_MRR, dev_P1, dev_P5 = evaluate(src_encoder, src_dev_loader, src_i2q)
+        test_MAP, test_MRR, test_P1, test_P5 = evaluate(src_encoder, src_test_loader, src_i2q)
 
-        dev_auc = evaluate_for_android(encoder, dev_loader, tgt_i2q)
-        test_auc = evaluate_for_android(encoder, test_loader, tgt_i2q)
+        dev_auc = evaluate_for_android(tgt_encoder, dev_loader, tgt_i2q)
+        test_auc = evaluate_for_android(tgt_encoder, test_loader, tgt_i2q)
 
         config.log.info("EPOCH[%d] Train Loss %.3lf || Discriminator Avg ACC %.3lf" % (epoch, avg_loss, avg_acc))
         config.log.info("EPOCH[%d] ANDROID DEV: AUC %.3lf" % (epoch, dev_auc))
@@ -527,10 +532,12 @@ if __name__ == "__main__":
             config.log.info("=> Update Model: Dev AUC %.3lf || Test AUC %.3lf || Saved at %s " % (best_dev_auc, best_test_auc, "%s-domain-adapt-2-epoch%d" % (config.args.model_file, epoch)))
 
         def save_checkpoint():
-            checkpoint = {"encoder":encoder.state_dict(), 
+            checkpoint = {"src_encoder": src_encoder.state_dict(), 
+                          "tgt_encoder": tgt_encoder.state_dict(), 
                           "discriminator":discriminator.state_dict(),
                           "optimizer1":optimizer1.state_dict(),
                           "optimizer2":optimizer2.state_dict(),
+                          "optimizer3":optimizer3.state_dict(),
                           "auc": "Dev AUC %.3lf || Test AUC %.3lf" % (dev_auc, test_auc),
                           "args":config.args}
             checkpoint_file = "%s-domain-adapt-2-epoch%d" % (config.args.model_file, epoch)

@@ -233,10 +233,10 @@ if __name__ == "__main__":
     
     encoder_optimizer = optim.Adam(tgt_encoder.get_train_parameters(), lr=1e-3 * 1e-1, weight_decay=1e-8 * 1e-1)
     discriminator_optimizer = optim.Adam(discriminator.get_train_parameters(), lr=1e-3, weight_decay=1e-8)
-    scheduler = optim.lr_scheduler.MultiStepLR(encoder_optimizer, milestones=[10,20], gamma=0.1)
+    #scheduler = optim.lr_scheduler.MultiStepLR(encoder_optimizer, milestones=[10,20], gamma=0.1)
 
     for epoch in tqdm(range(config.args.epochs), desc="Running"):
-            scheduler.step()
+            #scheduler.step()
             tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, avg_loss = train(config, \
                     src_encoder, tgt_encoder, discriminator, encoder_optimizer, discriminator_optimizer, \
                     src_train_loader, tgt_train_loader, src_i2q, tgt_i2q)

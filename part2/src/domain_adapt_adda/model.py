@@ -35,14 +35,7 @@ class myFNN(torch.nn.Module):
             if param.requires_grad == True:
                 params.append(param)
         return params
-
-    def output_grad(self):
-        print "------- myFNN GRADIENTS (start) --------"
-        print self.MLP[0].weight.grad
-        print self.MLP[2].weight.grad
-        print self.MLP[4].weight.grad
-        print "------- myFNN GRADIENTS (end) --------"
-
+    
     def forward(self, input):
         return self.MLP(input)
 
@@ -168,13 +161,6 @@ class myLSTM(torch.nn.Module):
                 params.append(param)
         return params
 
-    def output_grad(self):
-        print "$$$$$$$$$$$ LSTM gradients (start) $$$$$$$$$$$$"
-        print self.lstm.weight_ih_l0.grad
-        print self.lstm.weight_hh_l0.grad
-        print "all weights=", self.lstm._all_weights
-        print "$$$$$$$$$$$ LSTM gradients (end) $$$$$$$$$$$$"
-        
     """ Sort text data in nonincreasing order by length, and return new text, text_len """
     def preprocess(self, text, text_len):
         text = text.cpu()
