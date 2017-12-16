@@ -248,8 +248,9 @@ def train(config, src_encoder, tgt_encoder, discriminator, optimizer1, optimizer
 
 """ Evaluate: AUC(0.05) on Android """
 def evaluate_for_android(src_encoder, tgt_encoder, data_loader, i2q):
-    model.eval()
-
+    src_encoder.eval()
+    tgt_encoder.eval()
+    
     meter = AUCMeter()
     for batch_idx, (q1_ids, q2_ids, labels) in tqdm(enumerate(data_loader), desc="Evaluate"):
         batch_size = q1_ids.size(0)
